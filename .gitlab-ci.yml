@@ -12,14 +12,18 @@ stages:
   script:
     - bash ./ci_docker_build_push.sh
 
-.only_var_template: &only_tag_release
+.only_var_template: &only_branch
   only:
+    - 105-extended-postgres-images
+
+.only_var_template: &only_tag_release
     variables:
       - $CI_COMMIT_TAG =~ /^[0-9.]+$/
 
 build-extended-postgres-image-latest:
   <<: *build_image_definition
-  <<: *only_tag_release
+#  <<: *only_tag_release
+  <<: *only_branch
   variables:
     PG_SERVER_VERSION: 12
     REGISTRY_USER: "${DH_CI_REGISTRY_USER}"

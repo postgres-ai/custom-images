@@ -30,6 +30,6 @@ set +x
 echo -e "$tags_push" | while read -r tag; do
   [ -z "$tag" ] && continue
   set -x
-  docker push $tag
+#  docker push $tag
   set +x
 done
