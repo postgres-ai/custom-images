@@ -10,7 +10,9 @@ stages:
   services:
     - docker:dind
   script:
+    - apk add --no-cache bash
     - bash ./ci_docker_build_push.sh
+    - echo ${TAGS}
 
 .only_var_template: &only_branch
   only:
