@@ -8,9 +8,9 @@ ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-12} \
 # Set up apt, add Postgres repo.
 RUN apt-get update
 RUN apt-get install -y wget ca-certificates gnupg2
+RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" >> /etc/apt/sources.list.d/pgdg.list
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN cat /etc/apt/sources.list.d/pgdg.list
-# RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" >> /etc/apt/sources.list.d/pgdg.list
 RUN apt-get update
 RUN apt-get install -y apt-utils sudo
 
