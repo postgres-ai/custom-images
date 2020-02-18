@@ -33,8 +33,8 @@ RUN apt-get install -y postgresql-contrib-${PG_SERVER_VERSION}
 RUN apt-get install -y postgresql-server-dev-${PG_SERVER_VERSION}
 RUN apt-get install -y postgresql-${PG_SERVER_VERSION}-pg-stat-kcache
 RUN apt-get install -y postgresql-client-12
-RUN if [ "${PG_SERVER_VERSION}" = "12" ]; then apt-get install -y postgresql-plpython3-${PG_SERVER_VERSION}; fi
-RUN if [ "${PG_SERVER_VERSION}" != "12" ]; then apt-get install -y postgresql-plpython-${PG_SERVER_VERSION}; fi
+RUN if [ "${PG_SERVER_VERSION}" = "12" ]; then apt-get install -y postgresql-plpython3-${PG_SERVER_VERSION}; else apt-get install -y postgresql-plpython-${PG_SERVER_VERSION}; fi
+# RUN if [ "${PG_SERVER_VERSION}" != "12" ]; then apt-get install -y postgresql-plpython-${PG_SERVER_VERSION}; fi
 
 RUN apt-get install -y pgreplay
 RUN apt-get update && apt-get install -y pspg
