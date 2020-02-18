@@ -10,7 +10,10 @@ stages:
   script:
     - apk add --no-cache bash
     - bash ./ci_docker_build_push.sh
-  variables:
+
+.template: &tmpl1
+  image: fancy
+  variables: &tmpl1_vars
     REGISTRY_USER: "${DH_CI_REGISTRY_USER}"
     REGISTRY_PASSWORD: "${DH_CI_REGISTRY_PASSWORD}"
     REGISTRY: "${DH_CI_REGISTRY}"
@@ -30,9 +33,11 @@ build-extended-postgres-12-image-latest:
   <<: *build_image_definition
   #  <<: *only_tag_release
   <<: *only_branch
+  <<: *tmpl1
   variables:
     PG_SERVER_VERSION: "12"
     CI_COMMIT_TAG: "v0.0.1" #TODO(akartasov): remove test variables.
+    <<: *tmpl1_vars
 #    REGISTRY_USER: "${DH_CI_REGISTRY_USER}"
 #    REGISTRY_PASSWORD: "${DH_CI_REGISTRY_PASSWORD}"
 #    REGISTRY: "${DH_CI_REGISTRY}"
