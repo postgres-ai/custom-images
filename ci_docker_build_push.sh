@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-docker_file=${DOCKER_FILE:-"Dockerfile.extended-postgres"}
+docker_file=${DOCKER_FILE:-""}
 tags=${TAGS:-""}
 
 registry_user=${REGISTRY_USER:-"${CI_REGISTRY_USER}"}
