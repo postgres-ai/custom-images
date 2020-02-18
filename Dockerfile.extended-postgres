@@ -20,7 +20,7 @@ RUN apt-get install -y apt-utils sudo
 RUN apt-get install -y postgresql-${PG_SERVER_VERSION}
 
 # We don't want to use standard Ubuntu pgdata.
-RUN rm -rf /var/lib/postgresql/${PG_SERVER_VERSION}/main
+RUN rm -rf /var/lib/postgresql/${PG_SERVER_VERSION}/
 
 RUN apt-get install -y postgresql-contrib-${PG_SERVER_VERSION}
 RUN apt-get install -y postgresql-server-dev-${PG_SERVER_VERSION}
@@ -57,5 +57,6 @@ RUN printf "sudo -u postgres /usr/lib/postgresql/${PG_SERVER_VERSION}/bin/postgr
 
 # Infinite sleep to allow restarting Postgres.
 RUN echo "/bin/bash -c \"trap : TERM INT; sleep infinity & wait\"" >> /pg_start.sh
+RUN echo "chown -R postgres:postgres /var/lib/postgresql/pgdata" >> /pg_start.sh
 
 CMD ["/pg_start.sh"]
