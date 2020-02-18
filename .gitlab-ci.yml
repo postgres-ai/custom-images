@@ -27,7 +27,7 @@ build-extended-postgres-image-latest:
 #  <<: *only_tag_release
   <<: *only_branch
   variables:
-    PG_SERVER_VERSION: 12
+    PG_SERVER_VERSION: "9.6"
     CI_COMMIT_TAG: "v0.0.1" #TODO(akartasov): remove test variables.
     REGISTRY_USER: "${DH_CI_REGISTRY_USER}"
     REGISTRY_PASSWORD: "${DH_CI_REGISTRY_PASSWORD}"
