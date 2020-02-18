@@ -53,7 +53,7 @@ EXPOSE 5432
 
 # Prepare Postgres start script.
 RUN echo "#!/bin/bash" > /pg_start.sh && chmod a+x /pg_start.sh
-RUN echo "chown -R postgres:postgres /var/lib/postgresql/pgdata" >> /pg_start.sh
+RUN echo "chown -R postgres:postgres /var/lib/postgresql/pgdata /var/run/postgresql" >> /pg_start.sh
 RUN printf "sudo -u postgres /usr/lib/postgresql/${PG_SERVER_VERSION}/bin/postgres -D /var/lib/postgresql/pgdata \n" >> /pg_start.sh
 
 # Infinite sleep to allow restarting Postgres.
