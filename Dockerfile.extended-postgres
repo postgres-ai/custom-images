@@ -5,6 +5,8 @@ ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-12} \
     DEBIAN_FRONTEND=noninteractive
 
+RUN echo $0
+
 # Set up apt, add Postgres repo.
 RUN apt-get update && \
     apt-get install -y gnupg2 ca-certificates wget && \
