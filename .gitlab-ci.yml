@@ -2,7 +2,7 @@ stages:
   - build-image
 
 .job_template: &build_image_definition
-  image: alpine:edge
+  image: docker:19
   stage: build-image
   artifacts:
     paths:
