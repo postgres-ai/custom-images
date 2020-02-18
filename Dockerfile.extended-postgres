@@ -42,9 +42,10 @@ RUN rm -rf /tmp/* && \
 EXPOSE 5432
 
 # Prepare Postgres start script.
-RUN echo "#!/bin/bash" > /pg_start.sh && chmod a+x /pg_start.sh
-RUN printf "sudo -u postgres /usr/lib/postgresql/${PG_SERVER_VERSION}/bin/postgres -D /var/lib/postgresql/pgdata \n" >> /pg_start.sh
+RUN echo "#!/bin/bash" > /pg_start.sh && chmod a+x /pg_start.sh && \
+    printf "sudo -u postgres /usr/lib/postgresql/${PG_SERVER_VERSION}/bin/postgres -D /var/lib/postgresql/pgdata \n" >> /pg_start.sh \
+
 # Infinite sleep to allow restarting Postgres.
-RUN echo "/bin/bash -c \"trap : TERM INT; sleep infinity & wait\"" >> /pg_start.sh
+RUN echo "/bin/bash -c \"trap : TERM INT; sleep infinity & wait\"" >> /pg_start.sh \
 
 CMD ["/pg_start.sh"]
