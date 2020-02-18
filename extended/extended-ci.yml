@@ -21,7 +21,7 @@
     REGISTRY_USER: "${DH_CI_REGISTRY_USER}"
     REGISTRY_PASSWORD: "${DH_CI_REGISTRY_PASSWORD}"
     REGISTRY: "${DH_CI_REGISTRY}"
-    DOCKER_FILE: "Dockerfile"
+    DOCKER_FILE: "extended/Dockerfile"
     DOCKER_NAME: "postgresai/extended-postgres"
 
 
