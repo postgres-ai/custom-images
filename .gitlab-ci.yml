@@ -12,7 +12,6 @@ stages:
     - bash ./ci_docker_build_push.sh
 
 .template: &tmpl1
-  image: fancy
   variables: &tmpl1_vars
     REGISTRY_USER: "${DH_CI_REGISTRY_USER}"
     REGISTRY_PASSWORD: "${DH_CI_REGISTRY_PASSWORD}"
