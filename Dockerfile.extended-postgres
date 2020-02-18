@@ -18,7 +18,7 @@ RUN apt-get install -y apt-utils sudo
 
 # Install Postgres and postgres-specific packages.
 RUN apt-get install -y postgresql-${PG_SERVER_VERSION}
-RUN pg_ctlcluster ${PG_SERVER_VERSION} main stop && mv /var/lib/postgresql/${PG_SERVER_VERSION}/main /var/lib/postgresql/pgdata
+RUN mv /var/lib/postgresql/${PG_SERVER_VERSION}/main /var/lib/postgresql/pgdata
 RUN apt-get install -y postgresql-contrib-${PG_SERVER_VERSION}
 RUN apt-get install -y postgresql-server-dev-${PG_SERVER_VERSION}
 RUN apt-get install -y postgresql-${PG_SERVER_VERSION}-pg-stat-kcache
