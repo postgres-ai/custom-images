@@ -1,0 +1,5 @@
+stages:
+  - build-image
+
+include:
+  - local: '/extended/build-images-ci.yml'

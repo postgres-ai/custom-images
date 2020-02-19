@@ -1,3 +1,3 @@
 # Postgres Images
 
-Extended PostgreSQL Docker images
+PostgreSQL Docker images with various additional extensions.
