@@ -6,7 +6,7 @@
       name: docker:19.03.5-dind
   script:
     - apk add --no-cache bash
-    - bash ./ci_docker_build_push.sh
+    - bash ./extended/ci_docker_build_push.sh
 
 .only_var_template: &only_tag_release
   only:

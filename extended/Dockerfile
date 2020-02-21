@@ -13,7 +13,7 @@ RUN apt-get update \
     && apt-get update && apt-get install -y apt-utils sudo
 
 # Install Postgres and postgres-specific packages.
-RUN apt-get install -y postgresql-${PG_SERVER_VERSION}
+RUN echo "install ${PG_SERVER_VERSION}" && apt-get install -y postgresql-${PG_SERVER_VERSION}
 
 # We don't want to use standard Ubuntu pgdata.
 RUN rm -rf /var/lib/postgresql/${PG_SERVER_VERSION}/
