@@ -9,51 +9,49 @@
     - bash ./ci_docker_build_push.sh
 
 .only_var_template: &only_tag_release
-  only:
-    variables:
-      - $CI_COMMIT_TAG =~ /^[0-9.]+$/
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^[0-9.]+$/'
 
-.template: &extended_image_definition
-  variables: &extended_image_vars
+.template: &sync_image_definition
+  variables: &sync_image_vars
     REGISTRY_USER: "${DH_CI_REGISTRY_USER}"
     REGISTRY_PASSWORD: "${DH_CI_REGISTRY_PASSWORD}"
     REGISTRY: "${DH_CI_REGISTRY}"
-    DOCKER_FILE: "extended/Dockerfile"
-    DOCKER_NAME: "postgresai/extended-postgres"
+    DOCKER_FILE: "sync-instance/Dockerfile"
+    DOCKER_NAME: "postgresai/sync-instance"
 
-
-build-extended-postgres-9-6-image-latest:
+build-sync-postgres-9-6-image-latest:
   <<: *build_image_definition
   <<: *only_tag_release
-  <<: *extended_image_definition
+  <<: *sync_image_definition
   variables:
     PG_SERVER_VERSION: "9.6"
-    <<: *extended_image_vars
+    <<: *sync_image_vars
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
-build-extended-postgres-10-image-latest:
+build-sync-postgres-10-image-latest:
   <<: *build_image_definition
   <<: *only_tag_release
-  <<: *extended_image_definition
+  <<: *sync_image_definition
   variables:
     PG_SERVER_VERSION: "10"
-    <<: *extended_image_vars
+    <<: *sync_image_vars
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
-build-extended-postgres-11-image-latest:
+build-sync-postgres-11-image-latest:
   <<: *build_image_definition
   <<: *only_tag_release
-  <<: *extended_image_definition
+  <<: *sync_image_definition
   variables:
     PG_SERVER_VERSION: "11"
-    <<: *extended_image_vars
+    <<: *sync_image_vars
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
-build-extended-postgres-12-image-latest:
+build-sync-postgres-12-image-latest:
   <<: *build_image_definition
   <<: *only_tag_release
-  <<: *extended_image_definition
+  <<: *sync_image_definition
   variables:
     PG_SERVER_VERSION: "12"
-    <<: *extended_image_vars
+    <<: *sync_image_vars
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"

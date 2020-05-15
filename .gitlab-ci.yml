@@ -3,3 +3,4 @@ stages:
 
 include:
   - local: '/extended/build-images-ci.yml'
+  - local: '/sync-instance/build-images-ci.yml'
