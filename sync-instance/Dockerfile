@@ -10,7 +10,7 @@ ENV WALG_VERSION=${WALG_VERSION:-0.2.15}
 
 # Install dependecies.
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y ca-certificates wget \
+    && apt-get install --no-install-recommends -y ca-certificates wget daemontools \
     && wget --quiet -O /tmp/wal-g.linux-amd64.tar.gz "https://github.com/wal-g/wal-g/releases/download/v${WALG_VERSION}/wal-g.linux-amd64.tar.gz" \
     && tar -zxvf /tmp/wal-g.linux-amd64.tar.gz && mv wal-g /usr/local/bin/ \
     && rm -rf /tmp/* \
