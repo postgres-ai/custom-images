@@ -1,4 +1,4 @@
-ARG PG_SERVER_VERSION=12
+ARG PG_SERVER_VERSION=11
 
 FROM postgres:${PG_SERVER_VERSION}
 
@@ -11,7 +11,8 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-repack \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-hypopg \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-hypopg-dbgsym \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get install --no-install-recommends -y apt-transport-https \
+    && apt-get install --no-install-recommends -y ca-certificates
 
 RUN if [ "${PG_SERVER_VERSION}" = "12" ]; then \
         # pg_hint_plan for Postgres 12 does not supported yet, use master: https://github.com/ossc-db/pg_hint_plan/issues/37
@@ -25,6 +26,12 @@ RUN if [ "${PG_SERVER_VERSION}" = "12" ]; then \
             && unzip /tmp/pg_hint_plan.zip -d /tmp && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
             && make && make install || echo "[WARNING] pg_hint_plan extension not found"; \
     fi
+
+# add timescaledb extension
+RUN echo 'deb https://packagecloud.io/timescale/timescaledb/debian/' `env -i bash -c '. /etc/os-release; echo $VERSION_CODENAME'`  'main' > /etc/apt/sources.list.d/timescaledb.list \
+    && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
+    && apt-get update \
+    && apt-get install -y timescaledb-postgresql-${PG_SERVER_VERSION}
 
 # Reduce images size.
 RUN rm -rf /tmp/* \
