@@ -46,6 +46,11 @@ RUN curl -s https://install.citusdata.com/community/deb.sh | bash \
 # add powa extension
 RUN apt-get install postgresql-${PG_SERVER_VERSION}-powa
 
+# add pg_timetable extension
+RUN wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v2.3.0/pg_timetable_2.3.0_Linux_x86_64.deb \
+    && dpkg -i pg_timetable_2.3.0_Linux_x86_64.deb \
+    && rm -rf pg_timetable_2.3.0_Linux_x86_64.deb
+
 # Reduce images size.
 RUN rm -rf /tmp/* \
     && apt-get purge -y --auto-remove gcc make wget unzip curl apt-transport-https postgresql-server-dev-${PG_SERVER_VERSION} \
