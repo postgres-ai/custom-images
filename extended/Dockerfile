@@ -1,9 +1,11 @@
 ARG PG_SERVER_VERSION=11
+ARG CITUS=9.4
 
 FROM postgres:${PG_SERVER_VERSION}
 
 ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-12}
+ENV CITUS_VERSION=9.4
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y wget make gcc unzip sudo \
@@ -12,7 +14,8 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-hypopg \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-hypopg-dbgsym \
     && apt-get install --no-install-recommends -y apt-transport-https \
-    && apt-get install --no-install-recommends -y ca-certificates
+    && apt-get install --no-install-recommends -y ca-certificates \
+    && apt-get -y --no-install-recommends install curl
 
 RUN if [ "${PG_SERVER_VERSION}" = "12" ]; then \
         # pg_hint_plan for Postgres 12 does not supported yet, use master: https://github.com/ossc-db/pg_hint_plan/issues/37
@@ -33,6 +36,11 @@ RUN echo 'deb https://packagecloud.io/timescale/timescaledb/debian/' `env -i bas
     && apt-get update \
     && apt-get install -y timescaledb-postgresql-${PG_SERVER_VERSION}
 
+# add citus extension
+RUN curl -s https://install.citusdata.com/community/deb.sh | bash \
+    && apt-get install -y postgresql-${PG_SERVER_VERSION}-citus-${CITUS_VERSION} \
+                          postgresql-${PG_SERVER_VERSION}-hll=2.14.citus-1 \
+                          postgresql-${PG_SERVER_VERSION}-topn=2.3.0 
 # Reduce images size.
 RUN rm -rf /tmp/* \
     && apt-get purge -y --auto-remove \
