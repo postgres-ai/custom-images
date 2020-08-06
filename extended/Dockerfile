@@ -17,6 +17,7 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-hypopg-dbgsym \
     && apt-get install --no-install-recommends -y apt-transport-https \
     && apt-get install --no-install-recommends -y ca-certificates \
+    && apt-get install --no-install-recommends -y git \
     && apt-get -y --no-install-recommends install curl
 
 RUN if [ "${PG_SERVER_VERSION}" = "12" ]; then \
@@ -51,13 +52,21 @@ RUN wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v
     && dpkg -i pg_timetable_2.3.0_Linux_x86_64.deb \
     && rm -rf pg_timetable_2.3.0_Linux_x86_64.deb
 
+# add pg_show_plans extension
+RUN git clone https://github.com/cybertec-postgresql/pg_show_plans.git 
+WORKDIR /pg_show_plans 
+RUN export USE_PGXS=1 && make && make install
+WORKDIR /
+
+
 # Reduce images size.
 RUN rm -rf /tmp/* \
-    && apt-get purge -y --auto-remove gcc make wget unzip curl apt-transport-https postgresql-server-dev-${PG_SERVER_VERSION} \
+    && apt-get purge -y --auto-remove gcc make wget unzip curl apt-transport-https git postgresql-server-dev-${PG_SERVER_VERSION} \
     && apt-get clean -y autoclean \
     && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /pg_show_plans \
     # We don't want to use standard pgdata.
-    && rm -rf /var/lib/postgresql/${PG_SERVER_VERSION}/
+    && rm -rf /var/lib/postgresql/${PG_SERVER_VERSION}/ 
 
 EXPOSE 5432
 
