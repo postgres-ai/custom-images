@@ -58,6 +58,8 @@ WORKDIR /pg_show_plans
 RUN export USE_PGXS=1 && make && make install
 WORKDIR /
 
+# add pg_cron extension
+RUN apt-get -y install postgresql-${PG_SERVER_VERSION}-cron
 
 # Reduce images size.
 RUN rm -rf /tmp/* \
