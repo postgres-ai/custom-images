@@ -39,11 +39,15 @@ RUN echo 'deb https://packagecloud.io/timescale/timescaledb/debian/' `env -i bas
     && apt-get update \
     && apt-get install -y timescaledb-postgresql-${PG_SERVER_VERSION}
 
+
 # add citus extension
-RUN curl -s https://install.citusdata.com/community/deb.sh | bash \
-    && apt-get install -y postgresql-${PG_SERVER_VERSION}-citus-${CITUS_VERSION} \
+RUN if [ "${PG_SERVER_VERSION}" = "12" ] || [ "${PG_SERVER_VERSION}" = "11" ]; then \
+    # only 11 and 12 versions are supported by citus
+    curl -s https://install.citusdata.com/community/deb.sh | bash \
+        && apt-get install -y postgresql-${PG_SERVER_VERSION}-citus-${CITUS_VERSION} \
                           postgresql-${PG_SERVER_VERSION}-hll=2.14.citus-1 \
-                          postgresql-${PG_SERVER_VERSION}-topn=2.3.0 
+                          postgresql-${PG_SERVER_VERSION}-topn=2.3.0; \
+    fi
 # add powa extension
 RUN apt-get install postgresql-${PG_SERVER_VERSION}-powa
 
