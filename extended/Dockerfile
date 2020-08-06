@@ -2,6 +2,8 @@ ARG PG_SERVER_VERSION=11
 ARG CITUS=9.4
 
 FROM postgres:${PG_SERVER_VERSION}
+MAINTAINER postgres.ai
+
 
 ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-12}
@@ -41,9 +43,12 @@ RUN curl -s https://install.citusdata.com/community/deb.sh | bash \
     && apt-get install -y postgresql-${PG_SERVER_VERSION}-citus-${CITUS_VERSION} \
                           postgresql-${PG_SERVER_VERSION}-hll=2.14.citus-1 \
                           postgresql-${PG_SERVER_VERSION}-topn=2.3.0 
+# add powa extension
+RUN apt-get install postgresql-${PG_SERVER_VERSION}-powa
+
 # Reduce images size.
 RUN rm -rf /tmp/* \
-    && apt-get purge -y --auto-remove \
+    && apt-get purge -y --auto-remove gcc make wget unzip curl apt-transport-https postgresql-server-dev-${PG_SERVER_VERSION} \
     && apt-get clean -y autoclean \
     && rm -rf /var/lib/apt/lists/* \
     # We don't want to use standard pgdata.
