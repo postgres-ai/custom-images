@@ -59,10 +59,18 @@ RUN export USE_PGXS=1 && make && make install
 WORKDIR /
 
 # add pg_cron extension
-RUN apt-get -y install postgresql-${PG_SERVER_VERSION}-cron
+RUN apt-get install -y  postgresql-${PG_SERVER_VERSION}-cron
 
 # add postgresql_anonymizer extension 
 RUN pgxn install ddlx && pgxn install postgresql_anonymizer
+
+
+#add pg_stat_kcache extension
+RUN apt-get install postgresql-${PG_SERVER_VERSION}-pg-stat-kcache
+
+#add pg_qualstats extension
+RUN apt-get install postgresql-${PG_SERVER_VERSION}-pg-qualstats
+
 
 # Reduce images size.
 RUN rm -rf /tmp/* \
