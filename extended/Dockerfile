@@ -1,5 +1,4 @@
-ARG PG_SERVER_VERSION=11
-ARG CITUS=9.4
+ARG PG_SERVER_VERSION=12
 
 FROM postgres:${PG_SERVER_VERSION}
 MAINTAINER postgres.ai
@@ -15,82 +14,53 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y postgresql-server-dev-${PG_SERVER_VERSION} \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-repack \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-hypopg \
-    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-hypopg-dbgsym 
-
-RUN if [ "${PG_SERVER_VERSION}" = "12" ]; then \
-        # pg_hint_plan for Postgres 12 does not supported yet, use master: https://github.com/ossc-db/pg_hint_plan/issues/37
-        wget --quiet -O /tmp/pg_hint_plan.zip https://github.com/ossc-db/pg_hint_plan/archive/master.zip \
-            && unzip /tmp/pg_hint_plan.zip -d /tmp && cd /tmp/pg_hint_plan-master \
-            && make && make install || echo "[WARNING] pg_hint_plan extension not found"; \
-    else \
-        # convert versions with dot "9.6" to "96"
-        export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
-        && wget --quiet -O /tmp/pg_hint_plan.zip https://github.com/ossc-db/pg_hint_plan/archive/PG${PG_PLAN_HINT_VERSION}.zip \
-            && unzip /tmp/pg_hint_plan.zip -d /tmp && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
-            && make && make install || echo "[WARNING] pg_hint_plan extension not found"; \
-    fi
-
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-hypopg-dbgsym \ 
+ # convert versions with dot "9.6" to "96"
+&& export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
+    && wget --quiet -O /tmp/pg_hint_plan.zip https://github.com/ossc-db/pg_hint_plan/archive/PG${PG_PLAN_HINT_VERSION}.zip \
+    && unzip /tmp/pg_hint_plan.zip -d /tmp && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
+    && make && make install || echo "[WARNING] pg_hint_plan extension not found" \
 # add timescaledb extension
-RUN echo 'deb https://packagecloud.io/timescale/timescaledb/debian/' `env -i bash -c '. /etc/os-release; echo $VERSION_CODENAME'`  'main' > /etc/apt/sources.list.d/timescaledb.list \
+&& echo 'deb https://packagecloud.io/timescale/timescaledb/debian/' `env -i bash -c '. /etc/os-release; echo $VERSION_CODENAME'`  'main' > /etc/apt/sources.list.d/timescaledb.list \
     && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
     && apt-get update \
-    && apt-get install -y timescaledb-postgresql-${PG_SERVER_VERSION}
-
-
+    && apt-get install -y timescaledb-postgresql-${PG_SERVER_VERSION} \
 # add citus extension
-RUN if [ "${PG_SERVER_VERSION}" = "12" ] || [ "${PG_SERVER_VERSION}" = "11" ]; then \
+&& if [ "${PG_SERVER_VERSION}" = "12" ] || [ "${PG_SERVER_VERSION}" = "11" ]; then \
     # only 11 and 12 versions are supported by citus
     curl -s https://install.citusdata.com/community/deb.sh | bash \
         && apt-get install -y postgresql-${PG_SERVER_VERSION}-citus-${CITUS_VERSION} \
                           postgresql-${PG_SERVER_VERSION}-hll=2.14.citus-1 \
                           postgresql-${PG_SERVER_VERSION}-topn=2.3.0; \
-    fi
+    fi \
 # add powa extension
-RUN apt-get install postgresql-${PG_SERVER_VERSION}-powa
-
+&& apt-get install postgresql-${PG_SERVER_VERSION}-powa \
 # add pg_timetable extension
-RUN wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v2.3.0/pg_timetable_2.3.0_Linux_x86_64.deb \
-    && dpkg -i pg_timetable_2.3.0_Linux_x86_64.deb \
-    && rm -rf pg_timetable_2.3.0_Linux_x86_64.deb
-
+&& wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v2.3.0/pg_timetable_2.3.0_Linux_x86_64.deb  && dpkg -i pg_timetable_2.3.0_Linux_x86_64.deb  && rm -rf pg_timetable_2.3.0_Linux_x86_64.deb \
 # add pg_show_plans extension
-RUN git clone https://github.com/cybertec-postgresql/pg_show_plans.git 
-WORKDIR /pg_show_plans 
-RUN export USE_PGXS=1 && make && make install
-WORKDIR /
-
+&& git clone https://github.com/cybertec-postgresql/pg_show_plans.git && cd pg_show_plans && export USE_PGXS=1 && make && make install && cd .. && rm -rf pg_show_plans \
 # add pg_cron extension
-RUN apt-get install -y  postgresql-${PG_SERVER_VERSION}-cron
-
+&& apt-get install -y  postgresql-${PG_SERVER_VERSION}-cron \
 # add postgresql_anonymizer extension 
-RUN pgxn install ddlx && pgxn install postgresql_anonymizer
-
-
+&& pgxn install ddlx && pgxn install postgresql_anonymizer \
 # add pg_stat_kcache extension
-RUN apt-get install postgresql-${PG_SERVER_VERSION}-pg-stat-kcache
-
+&& apt-get install postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
 # add pg_qualstats extension
-RUN apt-get install postgresql-${PG_SERVER_VERSION}-pg-qualstats
-
+&&apt-get install postgresql-${PG_SERVER_VERSION}-pg-qualstats \
 #add pg_mon extension
-RUN git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon && USE_PGXS=1 make && USE_PGXS=1 make install
-
+&& git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon && USE_PGXS=1 make && USE_PGXS=1 make install \
 # add pgextwlist extension
-RUN apt-get install postgresql-${PG_SERVER_VERSION}-pgextwlist
-
+&& apt-get install postgresql-${PG_SERVER_VERSION}-pgextwlist \
 # add pg_auth_mon extension
-RUN git clone https://github.com/RafiaSabih/pg_auth_mon.git && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install
-
+&& git clone https://github.com/RafiaSabih/pg_auth_mon.git && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install \
 # add  set_user extension
-RUN git clone https://github.com/pgaudit/set_user.git && cd set_user && make USE_PGXS=1 && make USE_PGXS=1 install
-
+&& git clone https://github.com/pgaudit/set_user.git && cd set_user && make USE_PGXS=1 && make USE_PGXS=1 install \
 # Reduce images size.
-RUN rm -rf /tmp/* \
+&& rm -rf /tmp/* \
     && apt-get purge -y --auto-remove gcc make wget unzip curl libc6-dev apt-transport-https git postgresql-server-dev-${PG_SERVER_VERSION} pgxnclient build-essential libevent-dev \
-    libssl-dev krb5-multidev comerr-dev krb5-multidev libgssrpc4 libkadm5clnt-mit11 libkadm5srv-mit11 \
+       libssl-dev krb5-multidev comerr-dev krb5-multidev libgssrpc4 libkadm5clnt-mit11 libkadm5srv-mit11 \
     && apt-get clean -y autoclean \
     && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /pg_show_plans \
     # We don't want to use standard pgdata.
     && rm -rf /var/lib/postgresql/${PG_SERVER_VERSION}/ 
 
