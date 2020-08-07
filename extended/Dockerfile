@@ -1,4 +1,4 @@
-ARG PG_SERVER_VERSION=11
+ARG PG_SERVER_VERSION=9.6
 ARG CITUS=9.4
 
 FROM postgres:${PG_SERVER_VERSION}
@@ -10,7 +10,7 @@ ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-12}
 ENV CITUS_VERSION=9.4
 
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y wget make gcc unzip sudo git curl libc6-dev apt-transport-https ca-certificates pgxnclient build-essential \
+    && apt-get install --no-install-recommends -y wget make gcc unzip sudo git curl libc6-dev apt-transport-https ca-certificates pgxnclient build-essential libevent-dev \
     && apt-get install --no-install-recommends -y postgresql-server-dev-${PG_SERVER_VERSION} \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-repack \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-hypopg \
@@ -71,10 +71,12 @@ RUN apt-get install postgresql-${PG_SERVER_VERSION}-pg-stat-kcache
 #add pg_qualstats extension
 RUN apt-get install postgresql-${PG_SERVER_VERSION}-pg-qualstats
 
+#bg_mon pg_mon extension
+RUN git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon && USE_PGXS=1 make && USE_PGXS=1 make install
 
 # Reduce images size.
 RUN rm -rf /tmp/* \
-    && apt-get purge -y --auto-remove gcc make wget unzip curl libc6-dev apt-transport-https git postgresql-server-dev-${PG_SERVER_VERSION} pgxnclient build-essential \
+    && apt-get purge -y --auto-remove gcc make wget unzip curl libc6-dev apt-transport-https git postgresql-server-dev-${PG_SERVER_VERSION} pgxnclient build-essential libevent-dev \
     && apt-get clean -y autoclean \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /pg_show_plans \
