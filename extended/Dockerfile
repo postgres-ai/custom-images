@@ -11,6 +11,7 @@ ENV CITUS_VERSION=9.4
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y wget make gcc unzip sudo git curl libc6-dev apt-transport-https ca-certificates pgxnclient build-essential libevent-dev \
+    libssl-dev krb5-multidev \
     && apt-get install --no-install-recommends -y postgresql-server-dev-${PG_SERVER_VERSION} \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-repack \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-hypopg \
@@ -65,18 +66,24 @@ RUN apt-get install -y  postgresql-${PG_SERVER_VERSION}-cron
 RUN pgxn install ddlx && pgxn install postgresql_anonymizer
 
 
-#add pg_stat_kcache extension
+# add pg_stat_kcache extension
 RUN apt-get install postgresql-${PG_SERVER_VERSION}-pg-stat-kcache
 
-#add pg_qualstats extension
+# add pg_qualstats extension
 RUN apt-get install postgresql-${PG_SERVER_VERSION}-pg-qualstats
 
-#bg_mon pg_mon extension
+#add pg_mon extension
 RUN git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon && USE_PGXS=1 make && USE_PGXS=1 make install
+
+# add pgextwlist extension
+RUN apt-get install postgresql-${PG_SERVER_VERSION}-pgextwlist
+
+RUN git clone https://github.com/RafiaSabih/pg_auth_mon.git && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install
 
 # Reduce images size.
 RUN rm -rf /tmp/* \
     && apt-get purge -y --auto-remove gcc make wget unzip curl libc6-dev apt-transport-https git postgresql-server-dev-${PG_SERVER_VERSION} pgxnclient build-essential libevent-dev \
+    libssl-dev krb5-multidev comerr-dev krb5-multidev libgssrpc4 libkadm5clnt-mit11 libkadm5srv-mit11 \
     && apt-get clean -y autoclean \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /pg_show_plans \
