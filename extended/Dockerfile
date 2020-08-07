@@ -1,4 +1,4 @@
-ARG PG_SERVER_VERSION=9.6
+ARG PG_SERVER_VERSION=11
 ARG CITUS=9.4
 
 FROM postgres:${PG_SERVER_VERSION}
@@ -78,7 +78,11 @@ RUN git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon && USE_PGXS=
 # add pgextwlist extension
 RUN apt-get install postgresql-${PG_SERVER_VERSION}-pgextwlist
 
+# add pg_auth_mon extension
 RUN git clone https://github.com/RafiaSabih/pg_auth_mon.git && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install
+
+# add  set_user extension
+RUN git clone https://github.com/pgaudit/set_user.git && cd set_user && make USE_PGXS=1 && make USE_PGXS=1 install
 
 # Reduce images size.
 RUN rm -rf /tmp/* \
