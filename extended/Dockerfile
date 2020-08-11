@@ -46,7 +46,7 @@ RUN apt-get update \
 # add pg_stat_kcache extension
 && apt-get install postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
 # add pg_qualstats extension
-&&apt-get install postgresql-${PG_SERVER_VERSION}-pg-qualstats \
+&& apt-get install postgresql-${PG_SERVER_VERSION}-pg-qualstats \
 #add pg_mon extension
 && git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon && USE_PGXS=1 make && USE_PGXS=1 make install \
 # add pgextwlist extension
