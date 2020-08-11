@@ -1,7 +1,7 @@
 ARG PG_SERVER_VERSION=12
 
 FROM postgres:${PG_SERVER_VERSION}
-MAINTAINER postgres.ai
+LABEL maintainer="postgres.ai"
 
 
 ARG PG_SERVER_VERSION
