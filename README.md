@@ -2,7 +2,9 @@
 
 ## Extended images
 
-PostgreSQL Docker images with various additional extensions. Includes HypoPG, pg_hint_plan, more.
+PostgreSQL Docker images with various additional extensions. Includes HypoPG, pg_hint_plan, 
+Timescale, Citus, PoWA extensions, pg_timetable, pg_show_plans, pg_cron, postgresql_anonymizer, 
+pg_stat_kcache, pg_qualstats, bg_mon, pgextwlist, pg_auth_mon, set_user.
 
 Available versions: 9.6, 10, 11, 12.
 
