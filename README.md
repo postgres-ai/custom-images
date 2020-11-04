@@ -32,20 +32,16 @@ Available PostgreSQL versions: 9.6, 10, 11, 12, 13. Extensions:
 - [set_user](https://github.com/pgaudit/set_user)
 - [Timescale](https://github.com/timescale/timescaledb)
 
-**Known limitations**
-
-PostgreSQL 13 image doesn't have following extensions:
-1. removed in the base image of Postgres 13:
-   - hll
-   - timetravel
-   - topn
-1. not supported yet (coming soon):
-   - citus
-   - hypopg
-   - pg_auth_mon
-   - pg_hint_plan
-   - powa
-   - timescaledb
+#### Known limitations
+The PostgreSQL 13 image is now missing the following extensions (they will be added in the future):
+- postgresql-hll
+- postgresql-topn
+- citus
+- hypopg
+- pg_auth_mon
+- pg_hint_plan
+- powa
+- timescaledb
 
 ### How to extend
 
