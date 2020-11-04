@@ -10,7 +10,7 @@ Use these images with Database Lab, when you need HypoPG or anything else.
 
 ### What's inside
 
-Available PostgreSQL versions: 9.6, 10, 11, 12. Extensions:
+Available PostgreSQL versions: 9.6, 10, 11, 12, 13. Extensions:
 
 - all official ["core" contrib modules](https://www.postgresql.org/docs/current/contrib.html)
 - [bg_mon](https://github.com/CyberDem0n/bg_mon)
@@ -31,6 +31,21 @@ Available PostgreSQL versions: 9.6, 10, 11, 12. Extensions:
 - [PoWA](https://github.com/powa-team/powa)
 - [set_user](https://github.com/pgaudit/set_user)
 - [Timescale](https://github.com/timescale/timescaledb)
+
+**Known limitations**
+
+PostgreSQL 13 image doesn't have following extensions:
+1. removed in the base image of Postgres 13:
+   - hll
+   - timetravel
+   - topn
+1. not supported yet (coming soon):
+   - citus
+   - hypopg
+   - pg_auth_mon
+   - pg_hint_plan
+   - powa
+   - timescaledb
 
 ### How to extend
 
@@ -107,7 +122,7 @@ Available PostgreSQL versions: 9.6, 10, 11, 12. Extensions:
 
 PostgreSQL Docker images with WAL-G.
 
-Available versions: 9.6, 10, 11, 12.
+Available versions: 9.6, 10, 11, 12, 13.
 
 Use these images when you need set up a replica fetching WAL archives from an S3-compatible storage.
 
