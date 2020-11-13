@@ -24,6 +24,7 @@ Available PostgreSQL versions: 9.6, 10, 11, 12, 13. Extensions:
 - [pg_show_plans](https://github.com/cybertec-postgresql/pg_show_plans)
 - [pg_stat_kcache](https://github.com/powa-team/pg_stat_kcache)
 - [pg_timetable](https://github.com/cybertec-postgresql/pg_timetable)
+- [pgaudit](https://github.com/pgaudit/pgaudit)
 - [pgextwlist](https://github.com/dimitri/pgextwlist)
 - [postgresql-hll](https://github.com/citusdata/postgresql-hll)
 - [postgresql-topn](https://github.com/citusdata/postgresql-topn)
@@ -40,6 +41,7 @@ The PostgreSQL 13 image is now missing the following extensions (they will be ad
 - hypopg
 - pg_auth_mon
 - pg_hint_plan
+- pgaudit
 - powa
 - timescaledb
 
@@ -93,6 +95,7 @@ The PostgreSQL 13 image is now missing the following extensions (they will be ad
 | pg_stat_statements | 1.6             | track execution statistics of all SQL statements executed |
 | pg_trgm            | 1.4             | text similarity measurement and index searching based on trigrams |
 | pg_visibility      | 1.2             | examine the visibility map (VM) and page-level visibility info |
+| pgaudit            | 1.3.2           | provides auditing functionality |
 | pgcrypto           | 1.3             | cryptographic functions |
 | pgrowlocks         | 1.2             | show row-level locking information |
 | pgstattuple        | 1.5             | show tuple-level statistics |

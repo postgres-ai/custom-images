@@ -42,6 +42,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        && apt-get install -y timescaledb-postgresql-${PG_SERVER_VERSION} \
      # powa extension
      && apt-get install postgresql-${PG_SERVER_VERSION}-powa \
+     # pgaudit extension
+     && apt-get install postgresql-${PG_SERVER_VERSION}-pgaudit \
      # pg_auth_mon extension
      && git clone https://github.com/RafiaSabih/pg_auth_mon.git \
      && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install; \
