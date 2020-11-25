@@ -9,9 +9,7 @@ Derived from [official PostgreSQL images](https://hub.docker.com/_/postgres). St
 Use these images with Database Lab, when you need HypoPG or anything else. 
 
 ### What's inside
-
 Available PostgreSQL versions: 9.6, 10, 11, 12, 13. Extensions:
-
 - all official ["core" contrib modules](https://www.postgresql.org/docs/current/contrib.html)
 - [bg_mon](https://github.com/CyberDem0n/bg_mon)
 - [Citus](https://github.com/citusdata/citus)
@@ -26,17 +24,17 @@ Available PostgreSQL versions: 9.6, 10, 11, 12, 13. Extensions:
 - [pg_timetable](https://github.com/cybertec-postgresql/pg_timetable)
 - [pgaudit](https://github.com/pgaudit/pgaudit)
 - [pgextwlist](https://github.com/dimitri/pgextwlist)
-- [postgresql-hll](https://github.com/citusdata/postgresql-hll)
-- [postgresql-topn](https://github.com/citusdata/postgresql-topn)
+- [hll](https://github.com/citusdata/postgresql-hll)
+- [topn](https://github.com/citusdata/postgresql-topn)
 - [postgresql_anonymizer](https://github.com/webysther/postgresql_anonymizer) 
 - [PoWA](https://github.com/powa-team/powa)
 - [set_user](https://github.com/pgaudit/set_user)
 - [Timescale](https://github.com/timescale/timescaledb)
 
-#### Known limitations
+#### Not included in the PostgreSQL 13 image (yet)
 The PostgreSQL 13 image is now missing the following extensions (they will be added in the future):
-- postgresql-hll
-- postgresql-topn
+- hll
+- topn
 - citus
 - hypopg
 - pg_auth_mon
@@ -46,12 +44,10 @@ The PostgreSQL 13 image is now missing the following extensions (they will be ad
 - timescaledb
 
 ### How to extend
+- You can fork this repository and extend `Dockerfile`, then build your own images
+- Proposals to add more extensions to this repository are welcome https://gitlab.com/postgres-ai/custom-images/-/issues
 
-- You can fork this repository and extend `Dockerfile`, then build your own images.
-- Proposals to add more extensions to this repository are welcome https://gitlab.com/postgres-ai/custom-images/-/issues.
-
-### Complete list of available extensions
-
+### The complete list of available extensions
 | name | version | comment |
 | --- | --- | --- |
 | adminpack          | 2.0             | administrative functions for PostgreSQL |
@@ -118,15 +114,13 @@ The PostgreSQL 13 image is now missing the following extensions (they will be ad
 | xml2               | 1.1             | XPath querying and XSLT |
 
 ## Sync Instance images
-
 PostgreSQL Docker images with WAL-G.
 
-Available versions: 9.6, 10, 11, 12, 13.
+Available versions: 9.6, 10, 11, 12, and 13.
 
 Use these images when you need set up a replica fetching WAL archives from an S3-compatible storage.
 
 Example of sync instance usage with backups in Google Cloud Storage:
-
 ```bash
 docker run \
    --name sync-instance \
@@ -136,6 +130,6 @@ docker run \
    --volume /home/service_account.json:/etc/sa/credentials.json \
    --volume /var/lib/dblab/data:/var/lib/postgresql/pgdata:rshared \
    --detach \
-   postgresai/sync-instance:12
+   postgresai/sync-instance:13
 ```
 See the full list of configuration options in the [WAL-G project](https://github.com/wal-g/wal-g#configuration) repo.
