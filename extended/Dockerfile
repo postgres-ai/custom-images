@@ -17,6 +17,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        postgresql-server-dev-${PG_SERVER_VERSION} \
     && apt-get install --no-install-recommends -y \
        postgresql-${PG_SERVER_VERSION}-repack \
+    && apt-get install --no-install-recommends -y \ 
+       postgresql-plpython3-${PG_SERVER_VERSION} \
     # extensions supported in PostgreSQL 12 and below 
     # bc is used to manage PostgreSQL versions with dot like 9.6
     && if [ $(echo "$PG_SERVER_VERSION < 13" | /usr/bin/bc) = "1" ]; then \
