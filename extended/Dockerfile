@@ -6,6 +6,9 @@ LABEL maintainer="postgres.ai"
 ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-12}
 
+ARG WALG_VERSION
+ENV WALG_VERSION=${WALG_VERSION:-0.2.19}
+
 ENV CITUS_VERSION=9.4
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
@@ -17,9 +20,9 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        postgresql-server-dev-${PG_SERVER_VERSION} \
     && apt-get install --no-install-recommends -y \
        postgresql-${PG_SERVER_VERSION}-repack \
-    && apt-get install --no-install-recommends -y \ 
+    && apt-get install --no-install-recommends -y \
        postgresql-plpython3-${PG_SERVER_VERSION} \
-    # extensions supported in PostgreSQL 12 and below 
+    # extensions supported in PostgreSQL 12 and below
     # bc is used to manage PostgreSQL versions with dot like 9.6
     && if [ $(echo "$PG_SERVER_VERSION < 13" | /usr/bin/bc) = "1" ]; then \
      # hypopg
@@ -81,6 +84,9 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
    # set_user extension
    && git clone https://github.com/pgaudit/set_user.git \
      && cd set_user && make USE_PGXS=1 && make USE_PGXS=1 install \
+    # WAL-G
+   && wget --quiet -O /tmp/wal-g.linux-amd64.tar.gz "https://github.com/wal-g/wal-g/releases/download/v${WALG_VERSION}/wal-g.linux-amd64.tar.gz" \
+   && tar -zxvf /tmp/wal-g.linux-amd64.tar.gz && mv wal-g /usr/local/bin/ \
    # remove all auxilary packages to reduce final image size
    && cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove gcc \
       make wget unzip curl libc6-dev apt-transport-https git \
@@ -96,9 +102,9 @@ EXPOSE 5432
 
 # Prepare Postgres start script
 RUN echo "#!/bin/bash" > /pg_start.sh && chmod a+x /pg_start.sh \
-    && echo "chown -R postgres:postgres /var/lib/postgresql/pgdata /var/run/postgresql" \
+    && echo "chown -R postgres:postgres \${PGDATA} /var/run/postgresql" \
       >> /pg_start.sh \
-    && printf "sudo -u postgres /usr/lib/postgresql/${PG_SERVER_VERSION}/bin/postgres -D /var/lib/postgresql/pgdata \n" \
+    && printf "sudo -Eu postgres /usr/lib/postgresql/${PG_SERVER_VERSION}/bin/postgres -D \${PGDATA} >& /proc/1/fd/1 \n" \
       >> /pg_start.sh \
     # Infinite sleep to allow restarting Postgres
     && echo "/bin/bash -c \"trap : TERM INT; sleep infinity & wait\"" \
