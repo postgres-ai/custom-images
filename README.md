@@ -113,7 +113,13 @@ The PostgreSQL 13 image is now missing the following extensions (they will be ad
 | uuid-ossp          | 1.1             | generate universally unique identifiers (UUIDs) |
 | xml2               | 1.1             | XPath querying and XSLT |
 
+### PostgreSQL Tools:
+- [WAL-G](https://github.com/wal-g/wal-g)
+
 ## Sync Instance images
+
+**Deprecated. Use the extended image instead.**
+
 PostgreSQL Docker images with WAL-G.
 
 Available versions: 9.6, 10, 11, 12, and 13.
