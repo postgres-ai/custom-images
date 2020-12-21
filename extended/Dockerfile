@@ -84,7 +84,13 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
    # set_user extension
    && git clone https://github.com/pgaudit/set_user.git \
      && cd set_user && make USE_PGXS=1 && make USE_PGXS=1 install \
-    # WAL-G
+  # errorlogs extension
+  && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
+    cd /tmp && wget https://github.com/munakoiso/logerrors/archive/v1.1.tar.gz \
+    && tar -xf v1.1.tar.gz && rm v1.1.tar.gz && cd logerrors-1.1 \
+    && USE_PGXS=1 make && USE_PGXS=1 make install; \
+  fi \
+ # WAL-G
    && wget --quiet -O /tmp/wal-g.linux-amd64.tar.gz "https://github.com/wal-g/wal-g/releases/download/v${WALG_VERSION}/wal-g.linux-amd64.tar.gz" \
    && tar -zxvf /tmp/wal-g.linux-amd64.tar.gz && mv wal-g /usr/local/bin/ \
    # remove all auxilary packages to reduce final image size
