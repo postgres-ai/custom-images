@@ -1,12 +1,13 @@
 # PostgreSQL Images
 
 ## Extended images
+PostgreSQL Docker images with various additional extensions. Includes the majority of extensions, including those that are supported by RDS.
 
-PostgreSQL Docker images with various additional extensions. Includes the majority of extensions supported by RDS.
+Derived from [official PostgreSQL images](https://hub.docker.com/_/postgres). One of the key differences is that PostgreSQL can be stopped or restarted without the container being stopped (this is because in the official image, the `postmaster` process is the main one).
 
-Derived from [official PostgreSQL images](https://hub.docker.com/_/postgres). Storage-optimized: the size of each image is just ~120 MiB.
+Storage-optimized: the size of each image is just ~120 MiB.
 
-Use these images with Database Lab, when you need HypoPG or anything else. 
+Use these images with Database Lab, when you need HypoPG or anything else.
 
 ### What's inside
 Available PostgreSQL versions: 9.6, 10, 11, 12, 13. Extensions:
