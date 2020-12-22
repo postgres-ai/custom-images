@@ -14,7 +14,7 @@ stages:
     REGISTRY_USER: "${DH_CI_REGISTRY_USER}"
     REGISTRY_PASSWORD: "${DH_CI_REGISTRY_PASSWORD}"
     REGISTRY: "${DH_CI_REGISTRY}"
-    DOCKER_FILE: "extended/Dockerfile"
+    DOCKER_FILE: "extended-postgres/Dockerfile"
     DOCKER_NAME: "postgresai/extended-postgres"
 
 .job_template: &build_image_definition_gl
@@ -30,7 +30,7 @@ stages:
     REGISTRY_USER: "${CI_REGISTRY_USER}"
     REGISTRY_PASSWORD: "${CI_REGISTRY_PASSWORD}"
     REGISTRY: "${CI_REGISTRY}"
-    DOCKER_FILE: "extended/Dockerfile"
+    DOCKER_FILE: "extended-postgres/Dockerfile"
     DOCKER_NAME: "registry.gitlab.com/postgres-ai/custom-images/extended-postgres"
 
 .only_var_template: &only_tag_release
