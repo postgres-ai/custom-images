@@ -15,7 +15,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
     && apt-get install --no-install-recommends -y wget make gcc unzip sudo git \
        curl libc6-dev apt-transport-https ca-certificates pgxnclient bc \
-       build-essential libevent-dev libssl-dev krb5-multidev \
+       build-essential libevent-dev libssl-dev krb5-multidev lsb-release \
     && apt-get install --no-install-recommends -y \
        postgresql-server-dev-${PG_SERVER_VERSION} \
     && apt-get install --no-install-recommends -y \
@@ -38,13 +38,10 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
          && make && make install \
      # timescaledb extension
-     && echo 'deb https://packagecloud.io/timescale/timescaledb/debian/' \
-       $(env -i bash -c '. /etc/os-release; echo ${VERSION_CODENAME}') \
-       'main' > /etc/apt/sources.list.d/timescaledb.list \
-     && wget --quiet -O - \
-         https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
+     && echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/timescaledb.list \
+       && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
        && apt-get update \
-       && apt-get install -y timescaledb-postgresql-${PG_SERVER_VERSION} \
+       && apt install -y timescaledb-2-postgresql-${PG_SERVER_VERSION} \
      # powa extension
      && apt-get install postgresql-${PG_SERVER_VERSION}-powa \
      # pgaudit extension
@@ -97,7 +94,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
    && cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove gcc \
       make wget unzip curl libc6-dev apt-transport-https git \
       postgresql-server-dev-${PG_SERVER_VERSION} pgxnclient build-essential \
-      libssl-dev krb5-multidev comerr-dev krb5-multidev \
+      libssl-dev krb5-multidev comerr-dev krb5-multidev lsb-release \
       libgssrpc4 libkadm5clnt-mit11 libkadm5srv-mit11 \
      && apt-get clean -y autoclean \
      && rm -rf /var/lib/apt/lists/* \
