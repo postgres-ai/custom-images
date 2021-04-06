@@ -38,10 +38,20 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
          && make && make install \
      # timescaledb extension
-     && echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/timescaledb.list \
-       && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
-       && apt-get update \
-       && apt install -y timescaledb-2-postgresql-${PG_SERVER_VERSION} \
+     && if [ $(echo "$PG_SERVER_VERSION < 11" | /usr/bin/bc) = "1" ]; then \
+          echo 'deb https://packagecloud.io/timescale/timescaledb/debian/' \
+          $(env -i bash -c '. /etc/os-release; echo ${VERSION_CODENAME}') \
+          'main' > /etc/apt/sources.list.d/timescaledb.list \
+          && wget --quiet -O - \
+             https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
+          && apt-get update \
+          && apt-get install -y timescaledb-postgresql-${PG_SERVER_VERSION}; \
+        else \
+          echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/timescaledb.list \
+            && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
+            && apt-get update \
+            && apt install -y timescaledb-2-postgresql-${PG_SERVER_VERSION}; \
+        fi \
      # powa extension
      && apt-get install postgresql-${PG_SERVER_VERSION}-powa \
      # pgaudit extension
