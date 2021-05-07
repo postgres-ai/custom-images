@@ -77,7 +77,7 @@ The PostgreSQL 13 image is now missing the following extensions (they will be ad
 | intarray           | 1.2             | functions, operators, and index support for 1-D arrays of integers |
 | isn                | 1.2             | data types for international product numbering standards |
 | lo                 | 1.1             | Large Object maintenance |
-| logerrors          | 1.1             | Function for collecting statistics about messages in logfile
+| logerrors          | 2.0             | Function for collecting statistics about messages in logfile
 | ltree              | 1.1             | data type for hierarchical tree-like structures |
 | moddatetime        | 1.0             | functions for tracking last modification time |
 | pageinspect        | 1.7             | inspect the contents of database pages at a low level |

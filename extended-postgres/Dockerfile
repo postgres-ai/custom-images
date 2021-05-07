@@ -93,8 +93,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
      && cd set_user && make USE_PGXS=1 && make USE_PGXS=1 install \
   # errorlogs extension
   && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
-    cd /tmp && wget https://github.com/munakoiso/logerrors/archive/v1.1.tar.gz \
-    && tar -xf v1.1.tar.gz && rm v1.1.tar.gz && cd logerrors-1.1 \
+    cd /tmp && wget https://github.com/munakoiso/logerrors/archive/v2.0.tar.gz \
+    && tar -xf v2.0.tar.gz && rm v2.0.tar.gz && cd logerrors-2.0 \
     && USE_PGXS=1 make && USE_PGXS=1 make install; \
   fi \
  # WAL-G
