@@ -3,3 +3,4 @@ stages:
 
 include:
   - local: '/extended-postgres/build-images-ci.yml'
+  - local: '/migration-tools/build-images-migration-tools.yml'
