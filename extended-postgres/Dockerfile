@@ -15,7 +15,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
     && apt-get install --no-install-recommends -y wget make gcc unzip sudo git \
        curl libc6-dev apt-transport-https ca-certificates pgxnclient bc \
-       build-essential libevent-dev libssl-dev krb5-multidev lsb-release \
+       build-essential libevent-dev libssl-dev krb5-multidev libkrb5-dev lsb-release apt-utils \
     && apt-get install --no-install-recommends -y \
        postgresql-server-dev-${PG_SERVER_VERSION} \
     && apt-get install --no-install-recommends -y \
@@ -90,7 +90,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
    && apt-get install postgresql-${PG_SERVER_VERSION}-pgextwlist \
    # set_user extension
    && git clone https://github.com/pgaudit/set_user.git \
-     && cd set_user && make USE_PGXS=1 && make USE_PGXS=1 install \
+     && cd set_user && git checkout REL2_0_0 && make USE_PGXS=1 && make USE_PGXS=1 install \
   # errorlogs extension
   && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
     cd /tmp && wget https://github.com/munakoiso/logerrors/archive/v2.0.tar.gz \
@@ -104,7 +104,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
    && cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove gcc \
       make wget unzip curl libc6-dev apt-transport-https git \
       postgresql-server-dev-${PG_SERVER_VERSION} pgxnclient build-essential \
-      libssl-dev krb5-multidev comerr-dev krb5-multidev lsb-release \
+      libssl-dev krb5-multidev comerr-dev krb5-multidev libkrb5-dev apt-utils lsb-release \
       libgssrpc4 libkadm5clnt-mit11 libkadm5srv-mit11 \
      && apt-get clean -y autoclean \
      && rm -rf /var/lib/apt/lists/* \
