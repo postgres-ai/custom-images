@@ -10,7 +10,7 @@ Storage-optimized: the size of each image is just ~120 MiB.
 Use these images with Database Lab, when you need HypoPG or anything else.
 
 ### What's inside
-Available PostgreSQL versions: 9.6, 10, 11, 12, 13. Extensions:
+Available PostgreSQL versions: 9.6, 10, 11, 12, 13, 14. Extensions:
 - all official ["core" contrib modules](https://www.postgresql.org/docs/current/contrib.html)
 - [bg_mon](https://github.com/CyberDem0n/bg_mon)
 - [Citus](https://github.com/citusdata/citus)
@@ -35,13 +35,15 @@ Available PostgreSQL versions: 9.6, 10, 11, 12, 13. Extensions:
 
 #### Not included in the PostgreSQL 13 image (yet)
 The PostgreSQL 13 image is now missing the following extensions (they will be added in the future):
-- hll
-- topn
-- citus
-- hypopg
+- bg_mon
+- pg_auth_mon
+- powa
+
+#### Not included in the PostgreSQL 14 image (yet)
+The PostgreSQL 14 image is now missing the following extensions (they will be added in the future):
+- bg_mon
 - pg_auth_mon
 - pg_hint_plan
-- pgaudit
 - powa
 - timescaledb
 
@@ -103,7 +105,7 @@ The PostgreSQL 13 image is now missing the following extensions (they will be ad
 | powa               | 4.0.1           | PostgreSQL Workload Analyser-core |
 | refint             | 1.0             | functions for implementing referential integrity (obsolete) |
 | seg                | 1.3             | data type for representing line segments or floating-point intervals |
-| set_user           | 2.0             | similar to SET ROLE but with added logging |
+| set_user           | 3.0             | similar to SET ROLE but with added logging |
 | sslinfo            | 1.2             | information about SSL certificates |
 | tablefunc          | 1.0             | functions that manipulate whole tables, including crosstab |
 | tcn                | 1.0             | Triggered change notifications |
