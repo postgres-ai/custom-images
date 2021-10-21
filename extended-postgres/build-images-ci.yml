@@ -86,6 +86,14 @@ build-extended-postgres-13-image-latest:
     PG_SERVER_VERSION: "13"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
+build-extended-postgres-14-image-latest:
+  <<: *build_image_definition_dh
+  <<: *only_tag_release
+  variables:
+    <<: *extended_image_vars_dh
+    PG_SERVER_VERSION: "14"
+    TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
+
 build-extended-postgres-9-6-image-feature:
   <<: *build_image_definition_gl
   <<: *only_feature
@@ -124,4 +132,12 @@ build-extended-postgres-13-image-feature:
   variables:
     <<: *extended_image_vars_gl
     PG_SERVER_VERSION: "13"
+    TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
+
+build-extended-postgres-14-image-feature:
+  <<: *build_image_definition_gl
+  <<: *only_feature
+  variables:
+    <<: *extended_image_vars_gl
+    PG_SERVER_VERSION: "14"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"

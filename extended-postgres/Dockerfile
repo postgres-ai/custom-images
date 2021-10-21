@@ -1,15 +1,13 @@
-ARG PG_SERVER_VERSION=12
+ARG PG_SERVER_VERSION=14
 
 FROM postgres:${PG_SERVER_VERSION}
 LABEL maintainer="postgres.ai"
 
 ARG PG_SERVER_VERSION
-ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-12}
+ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
 
 ARG WALG_VERSION
 ENV WALG_VERSION=${WALG_VERSION:-0.2.19}
-
-ENV CITUS_VERSION=9.4
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
@@ -18,54 +16,60 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        build-essential libevent-dev libssl-dev krb5-multidev libkrb5-dev lsb-release apt-utils \
     && apt-get install --no-install-recommends -y \
        postgresql-server-dev-${PG_SERVER_VERSION} \
-    && apt-get install --no-install-recommends -y \
-       postgresql-${PG_SERVER_VERSION}-repack \
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-repack \
     && apt-get install --no-install-recommends -y \
        postgresql-plpython3-${PG_SERVER_VERSION} \
+     # hypopg
+    && apt-get install --no-install-recommends -y \
+         postgresql-${PG_SERVER_VERSION}-hypopg \
+    && apt-get install --no-install-recommends -y \
+         postgresql-${PG_SERVER_VERSION}-hypopg-dbgsym \
+    # pgaudit extension
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pgaudit \
+    && if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
+         # pg_hint_plan extension (dots are to be skipped here, e.g., "9.6" -> "96")
+         export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
+         && wget --quiet -O /tmp/pg_hint_plan.zip \
+           https://github.com/ossc-db/pg_hint_plan/archive/PG${PG_PLAN_HINT_VERSION}.zip \
+         && unzip /tmp/pg_hint_plan.zip -d /tmp \
+           && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
+           && make && make install; \
+         fi \
     # extensions supported in PostgreSQL 12 and below
     # bc is used to manage PostgreSQL versions with dot like 9.6
     && if [ $(echo "$PG_SERVER_VERSION < 13" | /usr/bin/bc) = "1" ]; then \
-     # hypopg
-     apt-get install --no-install-recommends -y \
-         postgresql-${PG_SERVER_VERSION}-hypopg \
-     && apt-get install --no-install-recommends -y \
-         postgresql-${PG_SERVER_VERSION}-hypopg-dbgsym \
-     # pg_hint_plan extension (dots are to be skipped here, e.g., "9.6" -> "96")
-     && export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
-       && wget --quiet -O /tmp/pg_hint_plan.zip \
-         https://github.com/ossc-db/pg_hint_plan/archive/PG${PG_PLAN_HINT_VERSION}.zip \
-       && unzip /tmp/pg_hint_plan.zip -d /tmp \
-         && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
-         && make && make install \
-     # timescaledb extension
-     && if [ $(echo "$PG_SERVER_VERSION < 11" | /usr/bin/bc) = "1" ]; then \
-          echo 'deb https://packagecloud.io/timescale/timescaledb/debian/' \
-          $(env -i bash -c '. /etc/os-release; echo ${VERSION_CODENAME}') \
-          'main' > /etc/apt/sources.list.d/timescaledb.list \
-          && wget --quiet -O - \
-             https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
-          && apt-get update \
-          && apt-get install -y timescaledb-postgresql-${PG_SERVER_VERSION}; \
-        else \
-          echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/timescaledb.list \
-            && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
-            && apt-get update \
-            && apt install -y timescaledb-2-postgresql-${PG_SERVER_VERSION}; \
-        fi \
-     # powa extension
-     && apt-get install postgresql-${PG_SERVER_VERSION}-powa \
-     # pgaudit extension
-     && apt-get install postgresql-${PG_SERVER_VERSION}-pgaudit \
-     # pg_auth_mon extension
-     && git clone https://github.com/RafiaSabih/pg_auth_mon.git \
-     && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install; \
-   fi \
-   # citus extension; only Postgres 11 and 12 are supported by citus
-   && if [ "${PG_SERVER_VERSION}" = "12" ] || [ "${PG_SERVER_VERSION}" = "11" ]; then \
+         # powa extension
+         apt-get install postgresql-${PG_SERVER_VERSION}-powa \
+         # pg_auth_mon extension
+         && git clone https://github.com/RafiaSabih/pg_auth_mon.git \
+         && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install; \
+       fi \
+    # timescaledb extension
+    && if [ $(echo "$PG_SERVER_VERSION < 11" | /usr/bin/bc) = "1" ]; then \
+         echo 'deb https://packagecloud.io/timescale/timescaledb/debian/' \
+           $(env -i bash -c '. /etc/os-release; echo ${VERSION_CODENAME}') \
+           'main' > /etc/apt/sources.list.d/timescaledb.list \
+           && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
+           && apt-get update \
+           && apt-get install -y timescaledb-postgresql-${PG_SERVER_VERSION}; \
+       elif [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
+         echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/timescaledb.list \
+           && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
+           && apt-get update \
+           && apt install -y timescaledb-2-postgresql-${PG_SERVER_VERSION}; \
+       fi \
+   # citus extension; only versions Postgres 11+ are supported
+   && if [ "${PG_SERVER_VERSION}" = "11" ]; then \
       curl -s https://install.citusdata.com/community/deb.sh | bash \
-      && apt-get install -y postgresql-${PG_SERVER_VERSION}-citus-${CITUS_VERSION} \
+      && apt-get install -y postgresql-${PG_SERVER_VERSION}-citus-9.4 \
          postgresql-${PG_SERVER_VERSION}-hll=2.14.citus-1 \
          postgresql-${PG_SERVER_VERSION}-topn=2.3.0; \
+      fi \
+   && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ]; then \
+      curl -s https://install.citusdata.com/community/deb.sh | bash \
+      && apt-get install -y postgresql-${PG_SERVER_VERSION}-citus-10.2 \
+         postgresql-${PG_SERVER_VERSION}-hll=2.16.citus-1 \
+         postgresql-${PG_SERVER_VERSION}-topn=2.4.0; \
       fi \
    # pg_timetable extension
    && wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v2.3.0/pg_timetable_2.3.0_Linux_x86_64.deb \
@@ -83,14 +87,17 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
    && apt-get install postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
    # add pg_qualstats extension
    && apt-get install postgresql-${PG_SERVER_VERSION}-pg-qualstats \
-   # pg_mon extension
-   && git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon \
-     && USE_PGXS=1 make && USE_PGXS=1 make install \
+   && if [ $(echo "$PG_SERVER_VERSION < 12" | /usr/bin/bc) = "1" ]; then \
+   # bg_mon extension
+     apt-get install -yq --no-install-suggests --no-install-recommends brotli \
+     && git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon \
+     && USE_PGXS=1 make && USE_PGXS=1 make install && cd .. ; \
+     fi \
    # pgextwlist extension
    && apt-get install postgresql-${PG_SERVER_VERSION}-pgextwlist \
    # set_user extension
    && git clone https://github.com/pgaudit/set_user.git \
-     && cd set_user && git checkout REL2_0_0 && make USE_PGXS=1 && make USE_PGXS=1 install \
+   && cd set_user && git checkout REL3_0_0 && make USE_PGXS=1 && make USE_PGXS=1 install \
   # errorlogs extension
   && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
     cd /tmp && wget https://github.com/munakoiso/logerrors/archive/v2.0.tar.gz \
@@ -105,7 +112,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
       make wget unzip curl libc6-dev apt-transport-https git \
       postgresql-server-dev-${PG_SERVER_VERSION} pgxnclient build-essential \
       libssl-dev krb5-multidev comerr-dev krb5-multidev libkrb5-dev apt-utils lsb-release \
-      libgssrpc4 libkadm5clnt-mit11 libkadm5srv-mit11 \
+      libgssrpc4 \
      && apt-get clean -y autoclean \
      && rm -rf /var/lib/apt/lists/* \
    # remove standard pgdata
