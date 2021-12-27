@@ -93,6 +93,7 @@ The PostgreSQL 14 image is now missing the following extensions (they will be ad
 | pg_repack          | 1.4.5           | Reorganize tables in PostgreSQL databases with minimal locks |
 | pg_show_plans      | 1.0             | show query plans of all currently running SQL statements |
 | pg_stat_kcache     | 2.1.3           | Kernel statistics gathering |
+| pg_wait_sampling   | 1.1.3           | sampling based statistics of wait events |
 | pg_stat_statements | 1.6             | track execution statistics of all SQL statements executed |
 | pg_trgm            | 1.4             | text similarity measurement and index searching based on trigrams |
 | pg_visibility      | 1.2             | examine the visibility map (VM) and page-level visibility info |

@@ -85,6 +85,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
    && pgxn install ddlx && pgxn install postgresql_anonymizer \
    # pg_stat_kcache extension
    && apt-get install postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
+   # pg_wait_sampling extension
+   && apt-get install postgresql-${PG_SERVER_VERSION}-pg-wait-sampling \
    # add pg_qualstats extension
    && apt-get install postgresql-${PG_SERVER_VERSION}-pg-qualstats \
    && if [ $(echo "$PG_SERVER_VERSION < 12" | /usr/bin/bc) = "1" ]; then \
