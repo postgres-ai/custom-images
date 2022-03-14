@@ -29,7 +29,7 @@ stages:
     REGISTRY_USER: "${CI_REGISTRY_USER}"
     REGISTRY_PASSWORD: "${CI_REGISTRY_PASSWORD}"
     REGISTRY: "${CI_REGISTRY}"
-    DOCKER_NAME: "registry.gitlab.com/postgres-ai/custom-images/migration-tools"
+    DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/migration-tools"
 
 .only_var_template: &only_tag_release
   only:
