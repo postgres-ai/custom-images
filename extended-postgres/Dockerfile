@@ -9,6 +9,9 @@ ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
 ARG WALG_VERSION
 ENV WALG_VERSION=${WALG_VERSION:-0.2.19}
 
+ARG PGBR_VERSION
+ENV PGBR_VERSION=${PGBR_VERSION:-2.37}
+
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
     && apt-get install --no-install-recommends -y wget make gcc unzip sudo git \
@@ -109,6 +112,9 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
  # WAL-G
    && wget --quiet -O /tmp/wal-g.linux-amd64.tar.gz "https://github.com/wal-g/wal-g/releases/download/v${WALG_VERSION}/wal-g.linux-amd64.tar.gz" \
    && tar -zxvf /tmp/wal-g.linux-amd64.tar.gz && mv wal-g /usr/local/bin/ \
+ # pgBackRest
+   && apt-get install --no-install-recommends -y pgbackrest=${PGBR_VERSION}* zstd openssh-client \
+   && mkdir -p -m 700 /var/lib/postgresql/.ssh  && chown postgres:postgres /var/lib/postgresql/.ssh \
    # remove all auxilary packages to reduce final image size
    && cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove gcc \
       make wget unzip curl libc6-dev apt-transport-https git \

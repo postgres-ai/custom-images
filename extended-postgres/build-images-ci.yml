@@ -31,7 +31,7 @@ stages:
     REGISTRY_PASSWORD: "${CI_REGISTRY_PASSWORD}"
     REGISTRY: "${CI_REGISTRY}"
     DOCKER_FILE: "extended-postgres/Dockerfile"
-    DOCKER_NAME: "registry.gitlab.com/postgres-ai/custom-images/extended-postgres"
+    DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres"
 
 .only_var_template: &only_tag_release
   only:

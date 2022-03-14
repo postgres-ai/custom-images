@@ -121,6 +121,7 @@ The PostgreSQL 14 image is now missing the following extensions (they will be ad
 
 ### PostgreSQL Tools:
 - [WAL-G](https://github.com/wal-g/wal-g)
+- [pgBackRest](https://github.com/pgbackrest/pgbackrest)
 
 ## Sync Instance images
 
