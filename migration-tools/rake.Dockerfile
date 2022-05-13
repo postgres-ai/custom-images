@@ -1,6 +1,6 @@
-FROM ruby:3.0.1-alpine3.13
+FROM ruby:3.0.4-alpine3.15
 
-RUN apk add --no-cache bash
+RUN apk add --no-cache bash libpq-dev ruby-dev gcc libffi-dev libc-dev make
 
 COPY ./migration-tools/entrypoint.sh /entrypoint.sh
 
