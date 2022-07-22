@@ -1,16 +1,44 @@
 ARG PG_SERVER_VERSION=14
 
+# build-env
+FROM postgres:${PG_SERVER_VERSION} as build-env
+
+ARG WALG_VERSION
+ENV WALG_VERSION=${WALG_VERSION:-2.0.0}
+
+ARG GO_VERSION
+ENV GO_VERSION=${GO_VERSION:-1.18.4}
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
+    # add the backports repository for Debian 9 Stretch. Required to install the package "libbrotli-dev"
+    && if [ $(sed 's/\..*//' /etc/debian_version) = "9" ]; then \
+      echo "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/backports.list; \
+    fi \
+    # install dependencies
+    && apt-get update -o Acquire::CompressionTypes::Order::=gz \
+    && apt-get install --no-install-recommends -y apt-transport-https ca-certificates \
+       wget curl sudo git make cmake gcc build-essential \
+       libbrotli-dev liblzo2-dev libsodium-dev \
+    # install Go
+    && cd /tmp && wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz \
+    && rm -rf /usr/local/go && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
+    && export PATH=$PATH:/usr/local/go/bin \
+    # build WAL-G
+    && git clone --branch v${WALG_VERSION} --single-branch https://github.com/wal-g/wal-g.git \
+    && cd wal-g && export USE_LIBSODIUM=1 && export USE_LZO=1 \
+    && make deps && GOBIN=/usr/local/bin make pg_install
+
+# Build the extended image
 FROM postgres:${PG_SERVER_VERSION}
 LABEL maintainer="postgres.ai"
+
+COPY --from=build-env /usr/local/bin/wal-g /usr/local/bin/wal-g
 
 ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
 
-ARG WALG_VERSION
-ENV WALG_VERSION=${WALG_VERSION:-0.2.19}
-
 ARG PGBR_VERSION
-ENV PGBR_VERSION=${PGBR_VERSION:-2.37}
+ENV PGBR_VERSION=${PGBR_VERSION:-2.39}
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
@@ -109,9 +137,6 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && tar -xf v2.0.tar.gz && rm v2.0.tar.gz && cd logerrors-2.0 \
     && USE_PGXS=1 make && USE_PGXS=1 make install; \
   fi \
- # WAL-G
-   && wget --quiet -O /tmp/wal-g.linux-amd64.tar.gz "https://github.com/wal-g/wal-g/releases/download/v${WALG_VERSION}/wal-g.linux-amd64.tar.gz" \
-   && tar -zxvf /tmp/wal-g.linux-amd64.tar.gz && mv wal-g /usr/local/bin/ \
  # pgBackRest
    && apt-get install --no-install-recommends -y pgbackrest=${PGBR_VERSION}* zstd openssh-client \
    && mkdir -p -m 700 /var/lib/postgresql/.ssh  && chown postgres:postgres /var/lib/postgresql/.ssh \
