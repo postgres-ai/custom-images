@@ -38,12 +38,14 @@ ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
 
 ARG PGBR_VERSION
-ENV PGBR_VERSION=${PGBR_VERSION:-2.39}
+ENV PGBR_VERSION=${PGBR_VERSION:-2.40}
 
 ARG PG_TIMETABLE_VERSION
-ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-4.8.0}
+ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-4.9.0}
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
+    # remove the "beta" suffix in the PG_SERVER_VERSION variable (if exists)
+    && PG_SERVER_VERSION="$( echo ${PG_SERVER_VERSION} | sed 's/beta.*//' )" \
     # add the backports repository for Debian 9 Stretch. Required to install the package "libbrotli-dev"
     && if [ $(sed 's/\..*//' /etc/debian_version) = "9" ]; then \
       echo "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/backports.list; \
@@ -63,15 +65,19 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        postgresql-9.6-amcheck; \
        fi \
     # pg_repack extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-${PG_SERVER_VERSION}-repack \
+    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+         apt-get install --no-install-recommends -y \
+         postgresql-${PG_SERVER_VERSION}-repack; \
+       fi \
     # hypopg extension
     && apt-get install --no-install-recommends -y \
          postgresql-${PG_SERVER_VERSION}-hypopg \
          postgresql-${PG_SERVER_VERSION}-hypopg-dbgsym \
     # pgaudit extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-${PG_SERVER_VERSION}-pgaudit \
+    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+         apt-get install --no-install-recommends -y \
+         postgresql-${PG_SERVER_VERSION}-pgaudit; \
+       fi \
     # pg_hint_plan extension
     && if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
          export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
@@ -112,41 +118,54 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
            && apt-get install --no-install-recommends -y \
               timescaledb-2-postgresql-${PG_SERVER_VERSION}; \
        fi \
-    # citus extension; the latest versions only support Postgres 13+
-    && if [ "${PG_SERVER_VERSION}" = "9.6" ]; then CITUS_VERSION="8.0"; \
-       elif [ "${PG_SERVER_VERSION}" = "10" ]; then CITUS_VERSION="8.3"; \
-       elif [ "${PG_SERVER_VERSION}" = "11" ]; then CITUS_VERSION="10.0"; \
-       elif [ "${PG_SERVER_VERSION}" = "12" ]; then CITUS_VERSION="10.2"; \
-       elif [ $(echo "$PG_SERVER_VERSION > 12" | /usr/bin/bc) = "1" ]; then CITUS_VERSION="11.0"; \
+    # citus extension
+    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+         if [ "${PG_SERVER_VERSION}" = "9.6" ]; then CITUS_VERSION="8.0"; \
+         elif [ "${PG_SERVER_VERSION}" = "10" ]; then CITUS_VERSION="8.3"; \
+         elif [ "${PG_SERVER_VERSION}" = "11" ]; then CITUS_VERSION="10.0"; \
+         elif [ "${PG_SERVER_VERSION}" = "12" ]; then CITUS_VERSION="10.2"; \
+         elif [ "${PG_SERVER_VERSION}" = "13" ]; then CITUS_VERSION="11.0"; \
+         elif [ "${PG_SERVER_VERSION}" = "14" ]; then CITUS_VERSION="11.0"; \
+         fi \
+        && curl -s https://install.citusdata.com/community/deb.sh | bash \
+        && apt-get install --no-install-recommends -y \
+         postgresql-"${PG_SERVER_VERSION}"-citus-"${CITUS_VERSION}"; \
        fi \
-    && curl -s https://install.citusdata.com/community/deb.sh | bash \
-    && apt-get install --no-install-recommends -y \
-       postgresql-"${PG_SERVER_VERSION}"-citus-"${CITUS_VERSION}" \
     # hll extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-"${PG_SERVER_VERSION}"-hll \
+    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+         apt-get install --no-install-recommends -y \
+         postgresql-"${PG_SERVER_VERSION}"-hll; \
+       fi \
     # topn extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-"${PG_SERVER_VERSION}"-topn \
+    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+         apt-get install --no-install-recommends -y \
+         postgresql-"${PG_SERVER_VERSION}"-topn;\
+       fi \
     # pg_timetable extension
     && wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v${PG_TIMETABLE_VERSION}/pg_timetable_${PG_TIMETABLE_VERSION}_Linux_x86_64.deb \
       && dpkg -i pg_timetable_${PG_TIMETABLE_VERSION}_Linux_x86_64.deb \
       && rm -rf pg_timetable_${PG_TIMETABLE_VERSION}_Linux_x86_64.deb \
     # pg_show_plans extension
-    && git clone https://github.com/cybertec-postgresql/pg_show_plans.git \
-      && cd pg_show_plans \
-      && export USE_PGXS=1 && make && make install && cd .. && rm -rf pg_show_plans \
+    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+         git clone https://github.com/cybertec-postgresql/pg_show_plans.git \
+         && cd pg_show_plans \
+         && export USE_PGXS=1 && make && make install && cd .. && rm -rf pg_show_plans; \
+       fi \
     # pg_cron extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-${PG_SERVER_VERSION}-cron \
+    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+         apt-get install --no-install-recommends -y \
+         postgresql-${PG_SERVER_VERSION}-cron; \
+       fi \
     # postgresql_anonymizer extension
     && pgxn install ddlx && pgxn install postgresql_anonymizer \
     # pg_stat_kcache extension
     && apt-get install --no-install-recommends -y \
        postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
     # pg_wait_sampling extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-${PG_SERVER_VERSION}-pg-wait-sampling \
+    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+         apt-get install --no-install-recommends -y \
+         postgresql-${PG_SERVER_VERSION}-pg-wait-sampling; \
+       fi \
     # pg_qualstats extension
     && apt-get install --no-install-recommends -y \
        postgresql-${PG_SERVER_VERSION}-pg-qualstats \
@@ -188,7 +207,7 @@ EXPOSE 5432
 RUN echo "#!/bin/bash" > /pg_start.sh && chmod a+x /pg_start.sh \
     && echo "chown -R postgres:postgres \${PGDATA} /var/run/postgresql" \
       >> /pg_start.sh \
-    && printf "sudo -Eu postgres /usr/lib/postgresql/${PG_SERVER_VERSION}/bin/postgres -D \${PGDATA} >& /proc/1/fd/1 \n" \
+    && printf "sudo -Eu postgres /usr/lib/postgresql/$( echo ${PG_SERVER_VERSION} | sed 's/beta.*//' )/bin/postgres -D \${PGDATA} >& /proc/1/fd/1 \n" \
       >> /pg_start.sh \
     # Infinite sleep to allow restarting Postgres
     && echo "/bin/bash -c \"trap : TERM INT; sleep infinity & wait\"" \
