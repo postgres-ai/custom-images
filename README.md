@@ -10,7 +10,7 @@ Storage-optimized: the size of each image is ~300-500 MiB.
 Use these images with Database Lab, when you need HypoPG or anything else.
 
 ### What's inside
-Available PostgreSQL versions: 9.6, 10, 11, 12, 13, 14. Extensions:
+Available PostgreSQL versions: 9.6 (EOL), 10, 11, 12, 13, 14, 15. Extensions:
 - all official ["core" contrib modules](https://www.postgresql.org/docs/current/contrib.html)
 - [bg_mon](https://github.com/CyberDem0n/bg_mon)
 - [Citus](https://github.com/citusdata/citus)
@@ -32,6 +32,21 @@ Available PostgreSQL versions: 9.6, 10, 11, 12, 13, 14. Extensions:
 - [PoWA](https://github.com/powa-team/powa)
 - [set_user](https://github.com/pgaudit/set_user)
 - [Timescale](https://github.com/timescale/timescaledb)
+
+#### Not included in the PostgreSQL 15 image (yet)
+The PostgreSQL 15 image is now missing the following extensions (they will be added in the future):
+- pg_repack
+- pgaudit
+- pg_auth_mon
+- pg_hint_plan
+- timescaledb
+- citus
+- hll
+- topn
+- pg_cron
+- pg_show_plans
+- pg_wait_sampling
+- bg_mon
 
 #### Not included in the PostgreSQL 14 image (yet)
 The PostgreSQL 14 image is now missing the following extensions (they will be added in the future):
