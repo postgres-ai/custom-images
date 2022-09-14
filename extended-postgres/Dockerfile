@@ -181,10 +181,18 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
       && cd set_user && git checkout REL3_0_0 && make USE_PGXS=1 && make USE_PGXS=1 install \
     # logerrors extension
     && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
-      cd /tmp && wget https://github.com/munakoiso/logerrors/archive/v2.0.tar.gz \
-      && tar -xf v2.0.tar.gz && rm v2.0.tar.gz && cd logerrors-2.0 \
-      && USE_PGXS=1 make && USE_PGXS=1 make install; \
-    fi \
+         # build logerrors v2.0
+         if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+           cd /tmp && wget https://github.com/munakoiso/logerrors/archive/v2.0.tar.gz \
+           && tar -xf v2.0.tar.gz && rm v2.0.tar.gz && cd logerrors-2.0 \
+           && USE_PGXS=1 make && USE_PGXS=1 make install; \
+         # build logerrors from the master branch for PostgreSQL 15
+         elif [ "${PG_SERVER_VERSION}" = "15" ]; then \
+           cd /tmp && git clone https://github.com/munakoiso/logerrors.git \
+           && cd logerrors \
+           && USE_PGXS=1 make && USE_PGXS=1 make install; \
+         fi \
+       fi \
     # pgBackRest
     && apt-get install --no-install-recommends -y \
        pgbackrest=${PGBR_VERSION}* zstd openssh-client \
