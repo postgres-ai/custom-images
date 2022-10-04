@@ -37,15 +37,12 @@ COPY --from=build-env /usr/local/bin/wal-g /usr/local/bin/wal-g
 ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
 
-ARG PGBR_VERSION
-ENV PGBR_VERSION=${PGBR_VERSION:-2.40}
-
 ARG PG_TIMETABLE_VERSION
 ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-4.9.0}
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
-    # remove the "beta" suffix in the PG_SERVER_VERSION variable (if exists)
-    && PG_SERVER_VERSION="$( echo ${PG_SERVER_VERSION} | sed 's/beta.*//' )" \
+    # remove the "beta" and "rc" suffix in the PG_SERVER_VERSION variable (if exists)
+    && PG_SERVER_VERSION="$( echo ${PG_SERVER_VERSION} | sed 's/beta.*//' | sed 's/rc.*//' )" \
     # add the backports repository for Debian 9 Stretch. Required to install the package "libbrotli-dev"
     && if [ $(sed 's/\..*//' /etc/debian_version) = "9" ]; then \
       echo "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/backports.list; \
@@ -201,7 +198,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        fi \
     # pgBackRest
     && apt-get install --no-install-recommends -y \
-       pgbackrest=${PGBR_VERSION}* zstd openssh-client \
+       pgbackrest zstd openssh-client \
        && mkdir -p -m 700 /var/lib/postgresql/.ssh \
        && chown postgres:postgres /var/lib/postgresql/.ssh \
     # remove all auxilary packages to reduce final image size
@@ -221,7 +218,7 @@ EXPOSE 5432
 RUN echo "#!/bin/bash" > /pg_start.sh && chmod a+x /pg_start.sh \
     && echo "chown -R postgres:postgres \${PGDATA} /var/run/postgresql" \
       >> /pg_start.sh \
-    && printf "sudo -Eu postgres /usr/lib/postgresql/$( echo ${PG_SERVER_VERSION} | sed 's/beta.*//' )/bin/postgres -D \${PGDATA} >& /proc/1/fd/1 \n" \
+    && printf "sudo -Eu postgres /usr/lib/postgresql/$(echo ${PG_SERVER_VERSION} | sed 's/beta.*//' | sed 's/rc.*//')/bin/postgres -D \${PGDATA} >& /proc/1/fd/1 \n" \
       >> /pg_start.sh \
     # Infinite sleep to allow restarting Postgres
     && echo "/bin/bash -c \"trap : TERM INT; sleep infinity & wait\"" \

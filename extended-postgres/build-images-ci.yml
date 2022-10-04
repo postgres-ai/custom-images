@@ -155,5 +155,5 @@ build-extended-postgres-15-image-feature:
   <<: *only_feature
   variables:
     <<: *extended_image_vars_gl
-    PG_SERVER_VERSION: "15beta4"
+    PG_SERVER_VERSION: "15rc1"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
