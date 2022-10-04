@@ -99,7 +99,7 @@ build-extended-postgres-15-image-latest:
   <<: *only_tag_release
   variables:
     <<: *extended_image_vars_dh
-    PG_SERVER_VERSION: "15beta4"
+    PG_SERVER_VERSION: "15rc1"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
 build-extended-postgres-9-6-image-feature:
