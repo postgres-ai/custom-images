@@ -40,12 +40,8 @@ The PostgreSQL 15 image is now missing the following extensions (they will be ad
 - pg_auth_mon
 - pg_hint_plan
 - timescaledb
-- citus
-- hll
-- topn
 - pg_cron
 - pg_show_plans
-- pg_wait_sampling
 - bg_mon
 
 #### Not included in the PostgreSQL 14 image (yet)
@@ -67,7 +63,7 @@ The PostgreSQL 14 image is now missing the following extensions (they will be ad
 | btree_gin          | 1.0             | 1.2             | 1.3             | 1.3             | 1.3             | 1.3             | support for indexing common datatypes in GIN |
 | btree_gist         | 1.2             | 1.5             | 1.5             | 1.5             | 1.5             | 1.6             | support for indexing common datatypes in GiST |
 | citext             | 1.3             | 1.4             | 1.5             | 1.6             | 1.6             | 1.6             | data type for case-insensitive character strings |
-| citus              | 8.0             | 8.3             | 10.0            | 10.2            | 11.0            | 11.0            | Citus distributed database |
+| citus              |                 |                 | 10.0            | 10.2            | 11.1            | 11.1            | Citus distributed database |
 | cube               | 1.2             | 1.2             | 1.4             | 1.4             | 1.4             | 1.5             | data type for multidimensional cubes |
 | dblink             | 1.2             | 1.2             | 1.2             | 1.2             | 1.2             | 1.2             | connect to other PostgreSQL databases from within a database |
 | ddlx               | 0.22            | 0.22            | 0.22            | 0.22            | 0.22            | 0.22            | DDL eXtractor functions |
@@ -76,7 +72,7 @@ The PostgreSQL 14 image is now missing the following extensions (they will be ad
 | earthdistance      | 1.1             | 1.1             | 1.1             | 1.1             | 1.1             | 1.1             | calculate great-circle distances on the surface of the Earth |
 | file_fdw           | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | foreign-data wrapper for flat file access |
 | fuzzystrmatch      | 1.1             | 1.1             | 1.1             | 1.1             | 1.1             | 1.1             | determine similarities and distance between strings |
-| hll                | 2.16            | 2.1             | 2.16            | 2.16            | 2.16            | 2.16            | type for storing hyperloglog data |
+| hll                | 2.16            | 2.17            | 2.17            | 2.17            | 2.17            | 2.17            | type for storing hyperloglog data |
 | hstore             | 1.4             | 1.4             | 1.5             | 1.6             | 1.7             | 1.8             | data type for storing sets of (key, value) pairs |
 | hstore_plpython3u  | 1.0             | 1.0             | 1.0             | 1 .0            | 1.0             | 1.0             | transform between hstore and plpython3u |
 | hypopg             | 1.3.1           | 1.3.1           | 1.3.1           | 1.3.1           | 1.3.1           | 1.3.1           | Hypothetical indexes for PostgreSQL |
@@ -121,9 +117,9 @@ The PostgreSQL 14 image is now missing the following extensions (they will be ad
 | sslinfo            | 1.2             | 1.2             | 1.2             | 1.2             | 1.2             | 1.2             | information about SSL certificates |
 | tablefunc          | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | functions that manipulate whole tables, including crosstab |
 | tcn                | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | Triggered change notifications |
-| timescaledb        | 1.7.5           | 1.7.5           | 2.3.1           | 2.7.1           | 2.7.1           | 2.7.1           | Enables scalable inserts and complex queries for time-series data |
+| timescaledb        |                 |                 |                 | 2.8.1           | 2.8.1           | 2.8.1           | Enables scalable inserts and complex queries for time-series data |
 | timetravel         | 1.0             | 1.0             | 1.0             |                 |                 |                 | functions for implementing time travel |
-| topn               | 2.3.0           | 2.3.0           | 2.4.0           | 2.4.0           | 2.4.0           | 2.4.0           | type for top-n JSONB |
+| topn               |                 | 2.5.0           | 2.5.0           | 2.5.0           | 2.5.0           | 2.5.0           | type for top-n JSONB |
 | tsm_system_rows    | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | TABLESAMPLE method which accepts number of rows as a limit |
 | tsm_system_time    | 1.0             | 1.0             | 1.0             | 1.0             | 11.0            | 1.0             | TABLESAMPLE method which accepts time in milliseconds as a limit |
 | unaccent           | 1.1             | 1.1             | 1.1             | 1.1             | 1.1             | 1.1             | text search dictionary that removes accents |
