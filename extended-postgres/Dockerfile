@@ -1,7 +1,11 @@
+# Debian 11 (bullseye) has glibc 2.31.
+# If you are using "physical" mode, please check the glibc version in your production database system to avoid potential index corruption.
+# You should have the same version of glibc as in your Docker image.
+
 ARG PG_SERVER_VERSION=14
 
 # build-env
-FROM postgres:${PG_SERVER_VERSION} as build-env
+FROM postgres:${PG_SERVER_VERSION}-bullseye as build-env
 
 ARG WALG_VERSION
 ENV WALG_VERSION=${WALG_VERSION:-2.0.0}
@@ -10,10 +14,6 @@ ARG GO_VERSION
 ENV GO_VERSION=${GO_VERSION:-1.18.4}
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
-    # add the backports repository for Debian 9 Stretch. Required to install the package "libbrotli-dev"
-    && if [ $(sed 's/\..*//' /etc/debian_version) = "9" ]; then \
-      echo "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/backports.list; \
-    fi \
     # install dependencies
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
     && apt-get install --no-install-recommends -y apt-transport-https ca-certificates \
@@ -29,7 +29,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && make deps && GOBIN=/usr/local/bin make pg_install
 
 # Build the extended image
-FROM postgres:${PG_SERVER_VERSION}
+FROM postgres:${PG_SERVER_VERSION}-bullseye
 LABEL maintainer="postgres.ai"
 
 COPY --from=build-env /usr/local/bin/wal-g /usr/local/bin/wal-g
@@ -43,10 +43,6 @@ ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-4.9.0}
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # remove the "beta" and "rc" suffix in the PG_SERVER_VERSION variable (if exists)
     && PG_SERVER_VERSION="$( echo ${PG_SERVER_VERSION} | sed 's/beta.*//' | sed 's/rc.*//' )" \
-    # add the backports repository for Debian 9 Stretch. Required to install the package "libbrotli-dev"
-    && if [ $(sed 's/\..*//' /etc/debian_version) = "9" ]; then \
-      echo "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/backports.list; \
-    fi \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
     && apt-get install --no-install-recommends -y wget make gcc unzip sudo git \
        curl libc6-dev apt-transport-https ca-certificates pgxnclient bc \
@@ -106,15 +102,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install; \
        fi \
     # timescaledb extension
-    && if [ $(echo "$PG_SERVER_VERSION < 11" | /usr/bin/bc) = "1" ]; then \
-         echo 'deb https://packagecloud.io/timescale/timescaledb/debian/' \
-           $(env -i bash -c '. /etc/os-release; echo ${VERSION_CODENAME}') \
-           'main' > /etc/apt/sources.list.d/timescaledb.list \
-           && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
-           && apt-get update \
-           && apt-get install --no-install-recommends -y \
-              timescaledb-postgresql-${PG_SERVER_VERSION}; \
-       elif [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+    && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
          echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/timescaledb.list \
            && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
            && apt-get update \
@@ -122,27 +110,25 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
               timescaledb-2-postgresql-${PG_SERVER_VERSION}; \
        fi \
     # citus extension
-    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-         if [ "${PG_SERVER_VERSION}" = "9.6" ]; then CITUS_VERSION="8.0"; \
-         elif [ "${PG_SERVER_VERSION}" = "10" ]; then CITUS_VERSION="8.3"; \
-         elif [ "${PG_SERVER_VERSION}" = "11" ]; then CITUS_VERSION="10.0"; \
+    && if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ]; then \
+         if [ "${PG_SERVER_VERSION}" = "11" ]; then CITUS_VERSION="10.0"; \
          elif [ "${PG_SERVER_VERSION}" = "12" ]; then CITUS_VERSION="10.2"; \
-         elif [ "${PG_SERVER_VERSION}" = "13" ]; then CITUS_VERSION="11.0"; \
-         elif [ "${PG_SERVER_VERSION}" = "14" ]; then CITUS_VERSION="11.0"; \
+         elif [ "${PG_SERVER_VERSION}" = "13" ]; then CITUS_VERSION="11.1"; \
+         elif [ "${PG_SERVER_VERSION}" = "14" ]; then CITUS_VERSION="11.1"; \
+         elif [ "${PG_SERVER_VERSION}" = "15" ]; then CITUS_VERSION="11.1"; \
          fi \
         && curl -s https://install.citusdata.com/community/deb.sh | bash \
         && apt-get install --no-install-recommends -y \
          postgresql-"${PG_SERVER_VERSION}"-citus-"${CITUS_VERSION}"; \
        fi \
     # hll extension
-    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-         apt-get install --no-install-recommends -y \
-         postgresql-"${PG_SERVER_VERSION}"-hll; \
-       fi \
+    && apt-get install --no-install-recommends -y \
+       postgresql-"${PG_SERVER_VERSION}"-hll \
     # topn extension
-    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-         apt-get install --no-install-recommends -y \
-         postgresql-"${PG_SERVER_VERSION}"-topn;\
+    && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
+         curl -s https://install.citusdata.com/community/deb.sh | bash \
+         && apt-get install --no-install-recommends -y \
+            postgresql-"${PG_SERVER_VERSION}"-topn; \
        fi \
     # pg_timetable extension
     && wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v${PG_TIMETABLE_VERSION}/pg_timetable_${PG_TIMETABLE_VERSION}_Linux_x86_64.deb \
@@ -165,10 +151,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && apt-get install --no-install-recommends -y \
        postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
     # pg_wait_sampling extension
-    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-         apt-get install --no-install-recommends -y \
-         postgresql-${PG_SERVER_VERSION}-pg-wait-sampling; \
-       fi \
+    && apt-get install --no-install-recommends -y \
+       postgresql-${PG_SERVER_VERSION}-pg-wait-sampling \
     # pg_qualstats extension
     && apt-get install --no-install-recommends -y \
        postgresql-${PG_SERVER_VERSION}-pg-qualstats \
