@@ -67,16 +67,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          postgresql-${PG_SERVER_VERSION}-hypopg \
          postgresql-${PG_SERVER_VERSION}-hypopg-dbgsym \
     # pgaudit extension
-    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-         apt-get install --no-install-recommends -y \
-         postgresql-${PG_SERVER_VERSION}-pgaudit; \
-         # build pgaudit from the 1.7beta1 for PostgreSQL 15
-       elif [ "${PG_SERVER_VERSION}" = "15" ]; then \
-         cd /tmp && git clone https://github.com/pgaudit/pgaudit.git \
-         && cd pgaudit \
-         && git checkout 1.7beta1 \
-         && make install USE_PGXS=1 PG_CONFIG=/usr/bin/pg_config; \
-       fi \
+    && apt-get install --no-install-recommends -y \
+         postgresql-${PG_SERVER_VERSION}-pgaudit \
     # pg_hint_plan extension
     && if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
          export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \

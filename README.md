@@ -36,13 +36,11 @@ Available PostgreSQL versions: 9.6 (EOL), 10, 11, 12, 13, 14, 15. Extensions:
 #### Not included in the PostgreSQL 15 image (yet)
 The PostgreSQL 15 image is now missing the following extensions (they will be added in the future):
 - pg_repack
-- pgaudit
 - pg_auth_mon
 - pg_hint_plan
 - timescaledb
 - pg_cron
 - pg_show_plans
-- bg_mon
 
 #### Not included in the PostgreSQL 14 image (yet)
 The PostgreSQL 14 image is now missing the following extensions (they will be added in the future):
