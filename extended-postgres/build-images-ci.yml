@@ -173,8 +173,8 @@ build-generic-postgis-images:
 build-rds-images:
   stage: build-image
   <<: *only_feature
+  variables:
+    SE_TYPE: rds
   trigger:
-    variables:
-      SE_TYPE: rds
     include:
       - local: extended-postgres/se/se-images-ci.yml
