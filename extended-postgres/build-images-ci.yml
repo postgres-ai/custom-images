@@ -174,7 +174,7 @@ build-rds-images:
   stage: build-image
   <<: *only_feature
   trigger:
+    variables:
+      SE_TYPE: rds
     include:
       - local: extended-postgres/se/se-images-ci.yml
-        variables:
-          SE_TYPE: aurora
