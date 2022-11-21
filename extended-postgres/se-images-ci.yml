@@ -1,7 +1,7 @@
 stages:
   - build-image
 
-.postgis_feature_job_template: &build_image_definition_gl
+.se_feature_job_template: &build_image_definition_gl
   image: docker:19
   stage: build-image
   services:
@@ -9,14 +9,14 @@ stages:
       name: docker:19.03.5-dind
   script:
     - echo $TAGS
-#    - apk add --no-cache bash
-#    - bash ./ci_docker_build_push.sh
+  #    - apk add --no-cache bash
+  #    - bash ./ci_docker_build_push.sh
   variables: &extended_image_vars_gl
     REGISTRY_USER: "${CI_REGISTRY_USER}"
     REGISTRY_PASSWORD: "${CI_REGISTRY_PASSWORD}"
     REGISTRY: "${CI_REGISTRY}"
-    DOCKER_FILE: "extended-postgres/Dockerfile.postgis"
-    DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres-postgis"
+    DOCKER_FILE: "extended-postgres/Dockerfile.${SE_TYPE}"
+    DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres-${SE_TYPE}"
     DOCKER_HOST: "tcp://docker:2376"
 
 .only_var_template: &only_feature
@@ -27,7 +27,7 @@ stages:
       - $CI_COMMIT_REF_SLUG != "master"
 #  when: manual
 
-build-extended-postgres-9-6-image-feature-postgis:
+build-extended-postgres-9-6-image-feature:
   <<: *build_image_definition_gl
   <<: *only_feature
   variables:

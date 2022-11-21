@@ -1,7 +1,7 @@
 stages:
   - build-image
 
-.se_feature_job_template: &build_image_definition_gl
+.feature_job_template: &build_image_definition_gl
   image: docker:19
   stage: build-image
   services:
@@ -9,14 +9,14 @@ stages:
       name: docker:19.03.5-dind
   script:
     - echo $TAGS
-  #    - apk add --no-cache bash
-  #    - bash ./ci_docker_build_push.sh
+#    - apk add --no-cache bash
+#    - bash ./ci_docker_build_push.sh
   variables: &extended_image_vars_gl
     REGISTRY_USER: "${CI_REGISTRY_USER}"
     REGISTRY_PASSWORD: "${CI_REGISTRY_PASSWORD}"
     REGISTRY: "${CI_REGISTRY}"
-    DOCKER_FILE: "extended-postgres/se/Dockerfile.${SE_TYPE}"
-    DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres-${SE_TYPE}"
+    DOCKER_FILE: "extended-postgres/Dockerfile"
+    DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres"
     DOCKER_HOST: "tcp://docker:2376"
 
 .only_var_template: &only_feature

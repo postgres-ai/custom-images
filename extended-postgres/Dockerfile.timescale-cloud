@@ -66,9 +66,9 @@ ADD generic.sh /
 RUN chmod +x /generic.sh
 RUN /generic.sh
 
-ADD postgis.sh /
-RUN chmod +x /postgis.sh
-RUN /postgis.sh
+ADD se/timescale-cloud.sh /
+RUN chmod +x /timescale-cloud.sh
+RUN /timescale-cloud.sh
 
 EXPOSE 5432
 
