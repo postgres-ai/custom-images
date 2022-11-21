@@ -1,0 +1,84 @@
+stages:
+  - build-image
+
+.postgis_feature_job_template: &build_image_definition_gl
+  image: docker:19
+  stage: build-image
+  services:
+    - alias: docker
+      name: docker:19.03.5-dind
+  script:
+    - echo $TAGS
+#    - apk add --no-cache bash
+#    - bash ./ci_docker_build_push.sh
+  variables: &extended_image_vars_gl
+    REGISTRY_USER: "${CI_REGISTRY_USER}"
+    REGISTRY_PASSWORD: "${CI_REGISTRY_PASSWORD}"
+    REGISTRY: "${CI_REGISTRY}"
+    DOCKER_FILE: "extended-postgres/Dockerfile.postgis"
+    DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres-postgis"
+    DOCKER_HOST: "tcp://docker:2376"
+
+.only_var_template: &only_feature
+  only:
+    refs:
+      - branches
+    variables:
+      - $CI_COMMIT_REF_SLUG != "master"
+#  when: manual
+
+build-extended-postgres-9-6-image-feature:
+  <<: *build_image_definition_gl
+  <<: *only_feature
+  variables:
+    <<: *extended_image_vars_gl
+    PG_SERVER_VERSION: "9.6"
+    TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
+
+build-extended-postgres-10-image-feature:
+  <<: *build_image_definition_gl
+  <<: *only_feature
+  variables:
+    <<: *extended_image_vars_gl
+    PG_SERVER_VERSION: "10"
+    TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
+
+build-extended-postgres-11-image-feature:
+  <<: *build_image_definition_gl
+  <<: *only_feature
+  variables:
+    <<: *extended_image_vars_gl
+    PG_SERVER_VERSION: "11"
+    TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
+
+build-extended-postgres-12-image-feature:
+  <<: *build_image_definition_gl
+  <<: *only_feature
+  variables:
+    <<: *extended_image_vars_gl
+    PG_SERVER_VERSION: "12"
+    TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
+
+build-extended-postgres-13-image-feature:
+  <<: *build_image_definition_gl
+  <<: *only_feature
+  variables:
+    <<: *extended_image_vars_gl
+    PG_SERVER_VERSION: "13"
+    TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
+
+build-extended-postgres-14-image-feature:
+  <<: *build_image_definition_gl
+  <<: *only_feature
+  variables:
+    <<: *extended_image_vars_gl
+    PG_SERVER_VERSION: "14"
+    TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
+
+build-extended-postgres-15-image-feature:
+  <<: *build_image_definition_gl
+  <<: *only_feature
+  variables:
+    <<: *extended_image_vars_gl
+    PG_SERVER_VERSION: "15"
+    TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"

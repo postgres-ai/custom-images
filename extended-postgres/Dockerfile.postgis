@@ -34,9 +34,9 @@ ENV PGSODIUM_VERSION=${PGSODIUM_VERSION:-3.0.5}
 ARG ANON_VERSION
 ENV ANON_VERSION=${ANON_VERSION:-1.1.0}
 
-ADD libs.sh /
-RUN chmod +x /libs.sh
-RUN /libs.sh
+ADD test.sh /
+RUN chmod +x /test.sh
+RUN /test.sh
 
 # Build the extended-postgres image
 FROM postgres:${PG_SERVER_VERSION}-bullseye
