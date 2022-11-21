@@ -116,6 +116,7 @@ build-extended-postgres-9-6-image-feature:
 
 
 build-postgis-feature:
+  stage: build-image
   <<: *only_feature
   trigger:
     include:
