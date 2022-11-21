@@ -27,7 +27,7 @@ stages:
       - $CI_COMMIT_REF_SLUG != "master"
 #  when: manual
 
-build-extended-postgres-9-6-image-feature:
+build-extended-postgres-9-6-image-feature-postgis:
   <<: *build_image_definition_gl
   <<: *only_feature
   variables:
