@@ -83,7 +83,6 @@ if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
    fi \
 fi
 
-
 # postgresql_anonymizer (anon) extension
 git clone --branch ${ANON_VERSION} --single-branch https://gitlab.com/dalibo/postgresql_anonymizer.git \
 && cd postgresql_anonymizer && make extension && make install
