@@ -8,9 +8,8 @@ stages:
     - alias: docker
       name: docker:19.03.5-dind
   script:
-    - echo $TAGS
-#    - apk add --no-cache bash
-#    - bash ./ci_docker_build_push.sh
+    - apk add --no-cache bash
+    - bash ./ci_docker_build_push.sh
   variables: &extended_image_vars_gl
     REGISTRY_USER: "${CI_REGISTRY_USER}"
     REGISTRY_PASSWORD: "${CI_REGISTRY_PASSWORD}"
