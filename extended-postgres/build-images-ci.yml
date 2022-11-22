@@ -30,7 +30,7 @@ stages:
       - branches
     variables:
       - $CI_COMMIT_REF_SLUG != "master"
-#  when: manual
+  when: manual
 
 build-extended-postgres-9-6-image-latest:
   <<: *build_image_definition_dh
