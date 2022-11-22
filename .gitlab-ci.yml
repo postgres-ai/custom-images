@@ -1,5 +1,6 @@
 stages:
   - build-image
+  - build-extended-image
 
 include:
   - local: '/extended-postgres/build-images-ci.yml'

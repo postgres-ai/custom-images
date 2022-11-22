@@ -1,9 +1,9 @@
 stages:
-  - build-image
+  - build-extended-image
 
 .se_feature_job_template: &build_image_definition_gl
   image: docker:19
-  stage: build-image
+  stage: build-extended-image
   services:
     - alias: docker
       name: docker:19.03.5-dind
