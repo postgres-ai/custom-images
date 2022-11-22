@@ -16,7 +16,6 @@ stages:
     REGISTRY: "${CI_REGISTRY}"
     DOCKER_FILE: "extended-postgres/Dockerfile"
     DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres"
-    DOCKER_HOST: "tcp://docker:2376"
 
 .only_var_template: &only_feature
   only:

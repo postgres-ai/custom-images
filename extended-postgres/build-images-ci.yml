@@ -16,7 +16,6 @@ stages:
     REGISTRY: "${DH_CI_REGISTRY}"
     DOCKER_FILE: "extended-postgres/Dockerfile"
     DOCKER_NAME: "postgresai/extended-postgres"
-    DOCKER_HOST: "tcp://docker:2376"
 
 .only_var_template: &only_tag_release
   only:
