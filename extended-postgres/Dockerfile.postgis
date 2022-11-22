@@ -43,10 +43,6 @@ COPY --from=build-env /usr/local/bin/wal-g /usr/local/bin/wal-g
 COPY --from=build-env --chown=root:root /usr/share/postgresql/ /usr/share/postgresql/
 COPY --from=build-env --chown=root:root /usr/lib/postgresql/ /usr/lib/postgresql/
 
-# libgraphqlparser
-ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
-COPY --from=build-env ["/usr/local/lib/libgraphqlparser.so", "/usr/local/lib/libgraphqlparser.so"]
-
 ARG PG_TIMETABLE_VERSION
 ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-4.9.0}
 
