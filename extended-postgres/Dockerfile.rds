@@ -3,9 +3,7 @@
 # You should have the same version of glibc as in your Docker image.
 
 ARG PG_SERVER_VERSION=14
-ARG BASE_IMAGE_NAME="postgres"
-
-RUN echo ${BASE_IMAGE_NAME}
+ARG BASE_IMAGE_NAME
 
 # Build the extended-postgres image
 FROM ${BASE_IMAGE_NAME}:${PG_SERVER_VERSION}
