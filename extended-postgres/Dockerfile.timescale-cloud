@@ -34,7 +34,7 @@ ENV PGSODIUM_VERSION=${PGSODIUM_VERSION:-3.0.5}
 ARG ANON_VERSION
 ENV ANON_VERSION=${ANON_VERSION:-1.1.0}
 
-ADD libs.sh /
+ADD ./extended-postgres/libs.sh /
 RUN chmod +x /libs.sh
 RUN /libs.sh
 
@@ -62,11 +62,11 @@ ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-4.9.0}
 ARG POSTGIS_VERSION
 ENV POSTGIS_VERSION=${POSTGIS_VERSION:-3}
 
-ADD generic.sh /
+ADD ./extended-postgres/generic.sh /
 RUN chmod +x /generic.sh
 RUN /generic.sh
 
-ADD se/timescale-cloud.sh /
+ADD ./extended-postgres/se/timescale-cloud.sh /
 RUN chmod +x /timescale-cloud.sh
 RUN /timescale-cloud.sh
 

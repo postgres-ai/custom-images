@@ -19,12 +19,6 @@ ENV WALG_VERSION=${WALG_VERSION:-2.0.0}
 ARG HTTP_VERSION
 ENV HTTP_VERSION=${HTTP_VERSION:-1.5.0}
 
-ARG PG_GRAPHQL_VERSION
-ENV PG_GRAPHQL_VERSION=${PG_GRAPHQL_VERSION:-0.4.1}
-
-ARG PG_JSONSCHEMA_VERSION
-ENV PG_JSONSCHEMA_VERSION=${PG_JSONSCHEMA_VERSION:-0.1.0}
-
 ARG PG_NET_VERSION
 ENV PG_NET_VERSION=${PG_NET_VERSION:-0.6.1}
 
@@ -34,7 +28,7 @@ ENV PGSODIUM_VERSION=${PGSODIUM_VERSION:-3.0.5}
 ARG ANON_VERSION
 ENV ANON_VERSION=${ANON_VERSION:-1.1.0}
 
-ADD libs.sh /
+ADD ./extended-postgres/libs.sh /
 RUN chmod +x /libs.sh
 RUN /libs.sh
 
@@ -52,17 +46,10 @@ COPY --from=build-env /usr/local/bin/wal-g /usr/local/bin/wal-g
 COPY --from=build-env --chown=root:root /usr/share/postgresql/ /usr/share/postgresql/
 COPY --from=build-env --chown=root:root /usr/lib/postgresql/ /usr/lib/postgresql/
 
-# libgraphqlparser
-ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
-COPY --from=build-env ["/usr/local/lib/libgraphqlparser.so", "/usr/local/lib/libgraphqlparser.so"]
-
 ARG PG_TIMETABLE_VERSION
 ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-4.9.0}
 
-ARG POSTGIS_VERSION
-ENV POSTGIS_VERSION=${POSTGIS_VERSION:-3}
-
-ADD generic.sh /
+ADD ./extended-postgres/generic.sh /
 RUN chmod +x /generic.sh
 RUN /generic.sh
 
