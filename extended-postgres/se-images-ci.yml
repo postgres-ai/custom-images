@@ -1,6 +1,3 @@
-stages:
-  - build-extended-image
-
 .se_feature_job_template: &build_image_definition_gl
   image: docker:19
   stage: build-extended-image
