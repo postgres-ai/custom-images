@@ -1,6 +1,3 @@
-include:
-  - local: 'extended-postgres/generic-ci.yml'
-
 .job_template: &build_image_definition_dh
   image: docker:19
   stage: build-image
@@ -28,7 +25,7 @@ include:
       - branches
     variables:
       - $CI_COMMIT_REF_SLUG != "master"
-  when: on_success
+  when: manual
 
 build-generic-postgres-9-6-image-latest:
   <<: *build_image_definition_dh
@@ -85,6 +82,13 @@ build-generic-postgres-15-image-latest:
     <<: *extended_image_vars_dh
     PG_SERVER_VERSION: "15"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
+
+build-generic-images:
+  stage: build-image
+  <<: *only_feature
+  trigger:
+    include: extended-postgres/generic-ci.yml
+    strategy: depend
 
 build-generic-postgis-images:
   stage: build-extended-image
