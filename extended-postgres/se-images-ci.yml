@@ -32,7 +32,7 @@ build-extended-postgres-9-6-image-feature:
     PG_SERVER_VERSION: "9.6"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
   needs:
-    - build-generic-postgres-9-6-image-feature
+    - build
 
 build-extended-postgres-10-image-feature:
   <<: *build_image_definition_gl
@@ -42,7 +42,7 @@ build-extended-postgres-10-image-feature:
     PG_SERVER_VERSION: "10"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
   needs:
-    - build-generic-postgres-10-image-feature
+    - build
 
 build-extended-postgres-11-image-feature:
   <<: *build_image_definition_gl

@@ -28,6 +28,7 @@ include:
       - branches
     variables:
       - $CI_COMMIT_REF_SLUG != "master"
+  when: on_success
 
 build-generic-postgres-9-6-image-latest:
   <<: *build_image_definition_dh
