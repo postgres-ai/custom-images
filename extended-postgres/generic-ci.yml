@@ -1,3 +1,6 @@
+stages:
+  - build-image
+
 .feature_job_template: &build_image_definition_gl
   image: docker:19
   stage: build-image
