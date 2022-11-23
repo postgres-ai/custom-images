@@ -1,3 +1,7 @@
+stages:
+  - build-image
+  - build-extended-image
+
 .job_template: &build_image_definition_dh
   image: docker:19
   stage: build-image
