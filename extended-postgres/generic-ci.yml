@@ -69,6 +69,7 @@ build-generic-postgres-14-image-feature:
     <<: *extended_image_vars_gl
     PG_SERVER_VERSION: "14"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
+  when: on_success
 
 build-generic-postgres-15-image-feature:
   <<: *build_image_definition_gl
