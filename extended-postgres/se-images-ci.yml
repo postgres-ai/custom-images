@@ -18,6 +18,8 @@ stages:
     BASE_IMAGE_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres"
     BASE_COMMIT_REF: "-${CI_COMMIT_REF_SLUG}"
     DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres-${SE_TYPE}"
+  tags:
+    - runner-build
 
 .only_tag_template: &only_tag_release
   only:
