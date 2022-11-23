@@ -102,6 +102,8 @@ build-generic-postgis-images:
   trigger:
     include:
       - local: extended-postgres/se-images-ci.yml
+  needs:
+    - job: build-generic-images
 
 build-rds-images:
   stage: build-extended-image
@@ -111,6 +113,8 @@ build-rds-images:
   trigger:
     include:
       - local: extended-postgres/se-images-ci.yml
+  needs:
+    - job: build-generic-images
 
 build-supabase-images:
   stage: build-extended-image
