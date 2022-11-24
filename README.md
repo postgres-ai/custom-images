@@ -52,7 +52,6 @@ Available PostgreSQL versions: 9.6 (EOL), 10, 11, 12, 13, 14, 15. Extensions:
 
 #### Not included in the PostgreSQL 15 image (yet)
 The PostgreSQL 15 image is now missing the following extensions (they will be added in the future):
-- pg_repack
 - pg_auth_mon
 - pg_hint_plan
 - timescaledb
@@ -121,7 +120,7 @@ The PostgreSQL 14 image is now missing the following extensions (they will be ad
 | pg_net             |                 |                 |                 | 0.6             | 0.6             | 0.6             | Async HTTP |
 | pg_prewarm         | 1.1             | 1.1             | 1.2             | 1.2             | 1.2             | 1.2             | prewarm relation data |
 | pg_qualstats       | 2.0.3           | 2.0.4           | 2.0.4           | 2.0.4           | 2.0.4           | 2.0.4           | An extension collecting statistics about quals |
-| pg_repack          | 1.4.7           | 1.4.7           | 1.4.7           | 1.4.7           | 1.4.7           | 1.4.7           | Reorganize tables in PostgreSQL databases with minimal locks |
+| pg_repack          | 1.4.7           | 1.4.8           | 1.4.8           | 1.4.8           | 1.4.8           | 1.4.8           | Reorganize tables in PostgreSQL databases with minimal locks |
 | pg_show_plans      | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | show query plans of all currently running SQL statements |
 | pg_stat_kcache     | 2.2.0           | 2.2.1           | 2.2.1           | 2.2.1           | 2.2.1           | 2.2.1           | Kernel statistics gathering |
 | pg_wait_sampling   | 1.1             | 1.1             | 1.1             | 1.1             | 1.1             | 1.1             | sampling based statistics of wait events |

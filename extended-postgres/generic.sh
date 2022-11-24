@@ -23,10 +23,8 @@ if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
 fi
 
 # pg_repack extension
-if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-   apt-get install --no-install-recommends -y \
-     postgresql-${PG_SERVER_VERSION}-repack;
-fi
+apt-get install --no-install-recommends -y \
+  postgresql-${PG_SERVER_VERSION}-repack
 
 # hypopg extension
 apt-get install --no-install-recommends -y \
