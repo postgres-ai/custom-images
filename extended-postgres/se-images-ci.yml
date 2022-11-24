@@ -18,6 +18,9 @@ stages:
     BASE_IMAGE_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres"
     BASE_COMMIT_REF: "-${CI_COMMIT_REF_SLUG}"
     DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres-${SE_TYPE}"
+    DOCKER_HOST: "tcp://docker:2376"
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
   tags:
     - runner-build
 
