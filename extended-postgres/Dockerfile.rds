@@ -13,6 +13,9 @@ LABEL maintainer="postgres.ai"
 ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
 
+ARG POSTGIS_VERSION
+ENV POSTGIS_VERSION=${POSTGIS_VERSION:-3}
+
 ADD ./extended-postgres/se/rds.sh /
 RUN chmod +x /rds.sh
 RUN /rds.sh
