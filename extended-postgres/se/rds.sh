@@ -6,19 +6,23 @@ apt-get install --no-install-recommends -y apt-transport-https ca-certificates \
    libreadline-dev zlib1g-dev flex bison libxml2-dev libxslt-dev libssl-dev libxml2-utils \
    xsltproc ccache libbrotli-dev liblzo2-dev libsodium-dev libc6-dev krb5-multidev libkrb5-dev \
    postgresql-server-dev-${PG_SERVER_VERSION} libpq-dev libcurl4-openssl-dev python2 \
-   python3 pkg-config clang g++ libc++-dev libc++abi-dev libglib2.0-dev libtinfo5 ninja-build binutils
+   python3 pkg-config clang g++ libc++-dev libc++abi-dev libglib2.0-dev libtinfo5 ninja-build binutils libicu-dev
 
 # aws_commons extension
-# TODO
+# Mocked
 
 # aws_lambda extension
-# TODO
+# Mocked
 
 # aws_s3 extension
-# TODO
+if [ "$(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc)" = "1" ]; then \
+  apt-get install -y --no-install-recommends postgresql-plpython3-"${PG_SERVER_VERSION}" \
+  && cd /tmp && git clone https://github.com/chimpler/postgres-aws-s3.git \
+  && cd postgres-aws-s3 && pg_config && make && make install;
+fi
 
 # pg_hint_plan extension
-if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
+if [ "$(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc)" = "1" ]; then \
    export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
    && wget --quiet -O /tmp/pg_hint_plan.zip \
      https://github.com/ossc-db/pg_hint_plan/archive/PG${PG_PLAN_HINT_VERSION}.zip \
@@ -35,7 +39,7 @@ if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
 fi
 
 # pg_proctab extension
-if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
+if [ "$(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc)" = "1" ]; then \
   cd /tmp && git clone https://gitlab.com/pg_proctab/pg_proctab.git \
   && cd pg_proctab && make && make install;
 fi
@@ -56,6 +60,17 @@ apt-get install -y --no-install-recommends \
 
 # oracle_fdw extension
 # TODO
+#cd /tmp && wget --quiet -O /tmp/instantclient-basiclite.zip https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-basiclite-linux.x64-21.8.0.0.0dbru.zip \
+#&& unzip /tmp/instantclient-basiclite.zip && mv /tmp/instantclient_21_8/ /usr/lib/oracle \
+#&& cd /tmp && wget --quiet -O /tmp/instantclient-sdk.zip https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-sdk-linux.x64-21.8.0.0.0dbru.zip \
+#&& unzip /tmp/instantclient-sdk.zip && mv /tmp/instantclient_21_8/sdk/include/ /usr/local/include/oracle \
+#&& cd /tmp && git clone https://github.com/laurenz/oracle_fdw.git \
+#&& cd oracle_fdw \
+#&& make USE_PGXS=1 PG_CPPFLAGS="-I /usr/local/include/oracle" SHLIB_LINK="-L /usr/lib/oracle" \
+#&& make USE_PGXS=1 PG_CPPFLAGS="-I /usr/local/include/oracle" SHLIB_LINK="-L /usr/lib/oracle" install
+
+## postgres=# create extension oracle_fdw;
+## ERROR:  could not load library "/usr/lib/postgresql/14/lib/oracle_fdw.so": /usr/lib/postgresql/14/lib/oracle_fdw.so: undefined symbol: OCICollAppend
 
 # log_fdw extension
 # TODO
@@ -65,7 +80,10 @@ apt-get install -y --no-install-recommends \
   postgresql-${PG_SERVER_VERSION}-orafce
 
 # pg_bigm extension
-# TODO
+PG_BIGM_VERSION="1.2-20200228" \
+&& cd /tmp && wget --quiet -O /tmp/pg_bigm-${PG_BIGM_VERSION}.tar.gz https://osdn.net/dl/pgbigm/pg_bigm-${PG_BIGM_VERSION}.tar.gz \
+&& tar zxf pg_bigm-${PG_BIGM_VERSION}.tar.gz && cd pg_bigm-${PG_BIGM_VERSION} \
+&& make USE_PGXS=1 PG_CONFIG=/usr/bin/pg_config && make USE_PGXS=1 PG_CONFIG=/usr/bin/pg_config install
 
 # pg_cron extension
 apt-get install -y --no-install-recommends \
@@ -112,7 +130,7 @@ apt-get install -y --no-install-recommends \
 # TODO
 
 # plprofiler extension
-if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
+if [ "$(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc)" = "1" ]; then \
   apt-get install -y --no-install-recommends \
     postgresql-${PG_SERVER_VERSION}-plprofiler;
 fi
@@ -135,10 +153,12 @@ apt-get install -y --no-install-recommends \
 # TODO
 
 # tds_fdw extension
-# TODO
+apt-get install -y --no-install-recommends \
+  postgresql-${PG_SERVER_VERSION}-tds-fdw
 
 # test_parser extension
-# TODO
+cd /tmp && git clone https://github.com/r888888888/test_parser.git \
+&& cd test_parser && make && make install
 
 # tsearch2 extension
 # TODO
@@ -151,7 +171,6 @@ apt-get install -y --no-install-recommends \
 # TODO
 
 # remove all auxiliary packages to reduce final image size
-cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove \
-       wget curl apt-transport-https apt-utils lsb-release bc \
-apt-get clean -y autoclean \
-rm -rf /var/lib/apt/lists/*
+cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove wget curl apt-transport-https apt-utils lsb-release bc \
+&& apt-get clean -y autoclean \
+&& rm -rf /var/lib/apt/lists/*
