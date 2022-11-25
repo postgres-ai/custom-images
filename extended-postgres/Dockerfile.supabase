@@ -27,6 +27,9 @@ ENV PG_NET_VERSION=${PG_NET_VERSION:-0.6.1}
 ARG PGSODIUM_VERSION
 ENV PGSODIUM_VERSION=${PGSODIUM_VERSION:-3.0.5}
 
+ARG POSTGIS_VERSION
+ENV POSTGIS_VERSION=${POSTGIS_VERSION:-3}
+
 ADD ./extended-postgres/se/supabase.sh /
 RUN chmod +x /supabase.sh
 RUN /supabase.sh
@@ -38,12 +41,6 @@ LABEL maintainer="postgres.ai"
 
 ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
-
-ARG POSTGIS_VERSION
-ENV POSTGIS_VERSION=${POSTGIS_VERSION:-3}
-
-# copy WAL-G binary
-COPY --from=build-env /usr/local/bin/wal-g /usr/local/bin/wal-g
 
 # copy PostgreSQL extensions from build-env
 COPY --from=build-env --chown=root:root /usr/share/postgresql/ /usr/share/postgresql/

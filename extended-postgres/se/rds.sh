@@ -126,7 +126,7 @@ apt-get install -y --no-install-recommends \
 
 # prefix extension
 apt-get install -y --no-install-recommends \
-  postgresql-14-prefix
+  postgresql-${PG_SERVER_VERSION}-prefix
 
 # rdkit extension
 # TODO
@@ -149,3 +149,9 @@ apt-get install -y --no-install-recommends \
 
 # plv8 extension (+ plcoffee, plls)
 # TODO
+
+# remove all auxiliary packages to reduce final image size
+cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove \
+       wget curl apt-transport-https apt-utils lsb-release bc \
+apt-get clean -y autoclean \
+rm -rf /var/lib/apt/lists/*

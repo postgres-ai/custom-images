@@ -38,7 +38,7 @@ apt-get install --no-install-recommends -y \
     postgresql-"${PG_SERVER_VERSION}"-hll
 
 # topn extension
-if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
+if [ "$(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc)" = "1" ]; then \
    curl -s https://install.citusdata.com/community/deb.sh | bash \
    && apt-get install --no-install-recommends -y \
       postgresql-"${PG_SERVER_VERSION}"-topn;
@@ -54,7 +54,7 @@ apt-get install --no-install-recommends -y \
   postgresql-${PG_SERVER_VERSION}-cron
 
 # pg_stat_monitor extension (available for versions 11, 12, 13 and 14)
-if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+if [ "$(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc)" = "1" ] && [ "$(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc)" = "1" ]; then \
    cd /tmp && curl -O https://repo.percona.com/apt/percona-release_latest.generic_all.deb \
    && apt-get install --no-install-recommends -y \
       ./percona-release_latest.generic_all.deb \
@@ -81,7 +81,7 @@ apt-get install --no-install-recommends -y \
     postgresql-${PG_SERVER_VERSION}-pgextwlist
 
 # rum extension
-if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+if [ "$(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc)" = "1" ]; then \
    apt-get install --no-install-recommends -y \
       postgresql-${PG_SERVER_VERSION}-rum;
 fi
@@ -92,7 +92,7 @@ apt-get install --no-install-recommends -y \
        && mkdir -p -m 700 /var/lib/postgresql/.ssh \
        && chown postgres:postgres /var/lib/postgresql/.ssh
 
-# remove all auxilary packages to reduce final image size
+# remove all auxiliary packages to reduce final image size
 cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove \
        wget curl apt-transport-https apt-utils lsb-release bc \
 apt-get clean -y autoclean \
