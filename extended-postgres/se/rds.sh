@@ -22,21 +22,7 @@ if [ "$(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc)" = "1" ]; then \
 fi
 
 # pg_hint_plan extension
-if [ "$(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc)" = "1" ]; then \
-   export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
-   && wget --quiet -O /tmp/pg_hint_plan.zip \
-     https://github.com/ossc-db/pg_hint_plan/archive/PG${PG_PLAN_HINT_VERSION}.zip \
-   && unzip /tmp/pg_hint_plan.zip -d /tmp \
-     && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
-     && make && make install;
-  # there is no branch "PG14", use the tag "REL14_1_4_0"
-  elif [ "${PG_SERVER_VERSION}" = "14" ]; then \
-     wget --quiet -O /tmp/pg_hint_plan.zip \
-     https://github.com/ossc-db/pg_hint_plan/archive/REL14_1_4_0.zip \
-   && unzip /tmp/pg_hint_plan.zip -d /tmp \
-     && cd /tmp/pg_hint_plan-REL14_1_4_0 \
-     && make && make install;
-fi
+# already in the "Generic" image
 
 # pg_proctab extension
 if [ "$(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc)" = "1" ]; then \
@@ -46,13 +32,13 @@ fi
 
 # postgis extension
 # (+ address_standardizer, postgis_raster, postgis_sfcgal, postgis_tiger_geocoder, postgis_topology)
-apt-get install -y --no-install-recommends \
-  postgresql-${PG_SERVER_VERSION}-postgis-${POSTGIS_VERSION} \
-  postgresql-${PG_SERVER_VERSION}-postgis-${POSTGIS_VERSION}-scripts
+# already in the "Generic-Postgis" image
+
+# pgrouting extension
+# already in the "Generic-Postgis" image
 
 # hll extension
-apt-get install -y --no-install-recommends \
-  postgresql-"${PG_SERVER_VERSION}"-hll
+# already in the "Generic" image
 
 # ip4r extension
 apt-get install -y --no-install-recommends \
@@ -86,16 +72,14 @@ PG_BIGM_VERSION="1.2-20200228" \
 && make USE_PGXS=1 PG_CONFIG=/usr/bin/pg_config && make USE_PGXS=1 PG_CONFIG=/usr/bin/pg_config install
 
 # pg_cron extension
-apt-get install -y --no-install-recommends \
-  postgresql-${PG_SERVER_VERSION}-cron
+# already in the "Generic" image
 
 # pg_partman extension
 apt-get install -y --no-install-recommends \
   postgresql-${PG_SERVER_VERSION}-pg_partman
 
 # pg_repack extension
-apt-get install -y --no-install-recommends \
-    postgresql-${PG_SERVER_VERSION}-repack
+# already in the "Generic" image
 
 # pg_similarity extension
 apt-get install -y --no-install-recommends \
@@ -105,21 +89,15 @@ apt-get install -y --no-install-recommends \
 # TODO
 
 # pgaudit extension
-apt-get install -y --no-install-recommends \
-   postgresql-${PG_SERVER_VERSION}-pgaudit
+# already in the "Generic" image
 
 # pglogical extension
 apt-get install -y --no-install-recommends \
   postgresql-${PG_SERVER_VERSION}-pglogical
 
-# pgrouting extension
-apt-get install -y --no-install-recommends \
-  postgresql-${PG_SERVER_VERSION}-pgrouting
-
 # pgtap extension
 apt-get install -y --no-install-recommends \
   postgresql-${PG_SERVER_VERSION}-pgtap
-
 
 # plperl extension
 # (+ bool_plperl + hstore_plperl + jsonb_plperl)
