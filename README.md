@@ -58,7 +58,6 @@ The PostgreSQL 15 image is now missing the following extensions (they will be ad
 - pg_show_plans
 - pg_stat_monitor
 - pljava
-- rum
 - pg_jsonschema
 
 #### Not included in the PostgreSQL 14 image (yet)

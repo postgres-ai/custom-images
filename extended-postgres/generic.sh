@@ -81,10 +81,8 @@ apt-get install --no-install-recommends -y \
     postgresql-${PG_SERVER_VERSION}-pgextwlist
 
 # rum extension
-if [ "$(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc)" = "1" ]; then \
-   apt-get install --no-install-recommends -y \
-      postgresql-${PG_SERVER_VERSION}-rum;
-fi
+apt-get install --no-install-recommends -y \
+    postgresql-${PG_SERVER_VERSION}-rum
 
 # pgBackRest
 apt-get install --no-install-recommends -y \
