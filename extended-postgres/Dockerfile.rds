@@ -8,15 +8,11 @@ ARG BASE_COMMIT_REF
 
 # Build the extended-postgres image
 #FROM ${BASE_IMAGE_NAME}:${PG_SERVER_VERSION}${BASE_COMMIT_REF}
-#FROM postgres:${PG_SERVER_VERSION}-bullseye
-FROM registry.gitlab.com/postgres-ai/custom-images/extended-postgres:14
+FROM registry.gitlab.com/postgres-ai/custom-images/extended-postgres-postgis:14
 LABEL maintainer="postgres.ai"
 
 ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
-
-ARG POSTGIS_VERSION
-ENV POSTGIS_VERSION=${POSTGIS_VERSION:-3}
 
 ADD ./extended-postgres/se/rds.sh /
 RUN chmod +x /rds.sh
