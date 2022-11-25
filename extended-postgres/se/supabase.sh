@@ -73,38 +73,18 @@ if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
   && cd supautils && make && make install;
 fi
 
-# plv8 extension
-cd /tmp && git clone --branch r3.1 --single-branch https://github.com/plv8/plv8 \
-  && cd plv8 \
-  && git checkout 8b7dc73 \
-  && make DOCKER=1 install \
-  && strip /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/plv8-3.1.4.so
-
 # postgis extension
-apt-get install -y --no-install-recommends \
-  postgresql-${PG_SERVER_VERSION}-postgis-${POSTGIS_VERSION} \
-  postgresql-${PG_SERVER_VERSION}-postgis-${POSTGIS_VERSION}-scripts
+# (+ address_standardizer, postgis_raster, postgis_sfcgal, postgis_tiger_geocoder, postgis_topology)
+# already in the "Generic-Postgis" image
 
 # pgrouting extension
-apt-get install -y --no-install-recommends \
-  postgresql-${PG_SERVER_VERSION}-pgrouting
+# already in the "Generic-Postgis" image
 
-# pg_stat_monitor extension (available for versions 11, 12, 13 and 14)
-if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-   cd /tmp && curl -O https://repo.percona.com/apt/percona-release_latest.generic_all.deb \
-   && apt-get install -y --no-install-recommends \
-      ./percona-release_latest.generic_all.deb \
-   && apt-get update \
-   && percona-release setup ppg${PG_SERVER_VERSION} \
-   && apt-get install -y --no-install-recommends \
-      percona-pg-stat-monitor${PG_SERVER_VERSION};
-fi
+# pg_stat_monitor extension
+# already in the "Generic" image
 
 # rum extension
-if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-   apt-get install -y --no-install-recommends \
-      postgresql-${PG_SERVER_VERSION}-rum;
-fi
+# already in the "Generic" image
 
 # pgtap extension
 apt-get install -y --no-install-recommends \
@@ -120,3 +100,9 @@ if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
       postgresql-${PG_SERVER_VERSION}-pljava;
 fi
 
+# plv8 extension
+cd /tmp && git clone --branch r3.1 --single-branch https://github.com/plv8/plv8 \
+  && cd plv8 \
+  && git checkout 8b7dc73 \
+  && make DOCKER=1 install \
+  && strip /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/plv8-3.1.4.so
