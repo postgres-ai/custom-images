@@ -3,55 +3,19 @@
 # You should have the same version of glibc as in your Docker image.
 
 ARG PG_SERVER_VERSION=14
-
-# build-env
-FROM postgres:${PG_SERVER_VERSION}-bullseye as build-env
-
-ARG PG_SERVER_VERSION
-ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
-
-ARG GO_VERSION
-ENV GO_VERSION=${GO_VERSION:-1.18.4}
-
-ARG WALG_VERSION
-ENV WALG_VERSION=${WALG_VERSION:-2.0.0}
-
-ARG HTTP_VERSION
-ENV HTTP_VERSION=${HTTP_VERSION:-1.5.0}
-
-ARG PGSODIUM_VERSION
-ENV PGSODIUM_VERSION=${PGSODIUM_VERSION:-3.0.5}
-
-ARG ANON_VERSION
-ENV ANON_VERSION=${ANON_VERSION:-1.1.0}
-
-ADD ./extended-postgres/libs.sh /
-RUN chmod +x /libs.sh
-RUN /libs.sh
+ARG BASE_IMAGE_NAME
+ARG BASE_COMMIT_REF
 
 # Build the extended-postgres image
-FROM postgres:${PG_SERVER_VERSION}-bullseye
+#FROM ${BASE_IMAGE_NAME}:${PG_SERVER_VERSION}${BASE_COMMIT_REF}
+FROM registry.gitlab.com/postgres-ai/custom-images/extended-postgres:14
 LABEL maintainer="postgres.ai"
 
 ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
 
-# copy WAL-G binary
-COPY --from=build-env /usr/local/bin/wal-g /usr/local/bin/wal-g
-
-# copy PostgreSQL extensions from build-env
-COPY --from=build-env --chown=root:root /usr/share/postgresql/ /usr/share/postgresql/
-COPY --from=build-env --chown=root:root /usr/lib/postgresql/ /usr/lib/postgresql/
-
-ARG PG_TIMETABLE_VERSION
-ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-4.9.0}
-
 ARG POSTGIS_VERSION
 ENV POSTGIS_VERSION=${POSTGIS_VERSION:-3}
-
-ADD ./extended-postgres/generic.sh /
-RUN chmod +x /generic.sh
-RUN /generic.sh
 
 ADD ./extended-postgres/postgis.sh /
 RUN chmod +x /postgis.sh
