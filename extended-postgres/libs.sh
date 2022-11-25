@@ -84,28 +84,3 @@ fi
 git clone --branch ${ANON_VERSION} --single-branch https://gitlab.com/dalibo/postgresql_anonymizer.git \
 && cd postgresql_anonymizer && make extension && make install
 
-# http extension
-git clone --branch v${HTTP_VERSION} --single-branch https://github.com/pramsey/pgsql-http.git \
-&& cd pgsql-http && make && make install
-
-# pg_hashids extension
-git clone https://github.com/iCyberon/pg_hashids.git \
-&& cd pg_hashids && USE_PGXS=1 make && USE_PGXS=1 make install
-
-# pgjwt extension
-git clone https://github.com/michelp/pgjwt.git && cd pgjwt && make install
-
-# pgsodium extension
-# as of version 3.0 pgsodium requires PostgreSQL 14+
-if [ $(echo "$PG_SERVER_VERSION > 13" | /usr/bin/bc) = "1" ]; then \
-  git clone --branch v${PGSODIUM_VERSION} --single-branch https://github.com/michelp/pgsodium.git \
-  && cd pgsodium \
-  && make install;
-fi
-
-# use pgsodium 2.0 for earlier versions of PostgreSQL.
-if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
-  git clone --branch v2.0.2 --single-branch https://github.com/michelp/pgsodium.git \
-  && cd pgsodium \
-  && make install;
-fi

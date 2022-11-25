@@ -8,14 +8,8 @@ apt-get clean && rm -rf /var/lib/apt/lists/partial \
 && apt-get install --no-install-recommends -y apt-transport-https ca-certificates \
    wget curl sudo bc lsb-release apt-utils
 
-# pgsodium requirements
-apt-get install --no-install-recommends -y libsodium23
-
 # plpython3 (procedural language implementation for Python 3.x)
 apt-get install --no-install-recommends -y postgresql-plpython3-${PG_SERVER_VERSION}
-
-# pgrouting extension
-apt-get install -y --no-install-recommends postgresql-${PG_SERVER_VERSION}-pgrouting
 
 # amcheck extension; not included in contrib for Postgres 9.6
 if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
@@ -86,25 +80,11 @@ apt-get install --no-install-recommends -y \
 apt-get install --no-install-recommends -y \
     postgresql-${PG_SERVER_VERSION}-pgextwlist
 
-# plpgsql_check extension
-apt-get install --no-install-recommends -y \
-    postgresql-${PG_SERVER_VERSION}-plpgsql-check
-
-# pljava extension
-if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-   apt-get install --no-install-recommends -y \
-      postgresql-${PG_SERVER_VERSION}-pljava;
-fi
-
 # rum extension
 if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
    apt-get install --no-install-recommends -y \
       postgresql-${PG_SERVER_VERSION}-rum;
 fi
-
-# pgtap extension
-apt-get install --no-install-recommends -y \
-       postgresql-${PG_SERVER_VERSION}-pgtap
 
 # pgBackRest
 apt-get install --no-install-recommends -y \

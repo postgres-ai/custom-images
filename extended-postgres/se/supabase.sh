@@ -10,6 +10,9 @@ apt-get install --no-install-recommends -y apt-transport-https ca-certificates \
    postgresql-server-dev-${PG_SERVER_VERSION} libpq-dev libcurl4-openssl-dev python2 \
    python3 pkg-config clang g++ libc++-dev libc++abi-dev libglib2.0-dev libtinfo5 ninja-build binutils
 
+# pgsodium requirements
+apt-get install --no-install-recommends -y libsodium23
+
 # libgraphqlparser (required for pg_graphql)
 git clone --branch v0.7.0 --single-branch https://github.com/graphql/libgraphqlparser \
   && cd libgraphqlparser && cmake . && make install
@@ -32,6 +35,32 @@ if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SE
     && cargo pgx install";
 fi
 
+# http extension
+git clone --branch v${HTTP_VERSION} --single-branch https://github.com/pramsey/pgsql-http.git \
+&& cd pgsql-http && make && make install
+
+# pg_hashids extension
+git clone https://github.com/iCyberon/pg_hashids.git \
+&& cd pg_hashids && USE_PGXS=1 make && USE_PGXS=1 make install
+
+# pgjwt extension
+git clone https://github.com/michelp/pgjwt.git && cd pgjwt && make install
+
+# pgsodium extension
+# as of version 3.0 pgsodium requires PostgreSQL 14+
+if [ $(echo "$PG_SERVER_VERSION > 13" | /usr/bin/bc) = "1" ]; then \
+  git clone --branch v${PGSODIUM_VERSION} --single-branch https://github.com/michelp/pgsodium.git \
+  && cd pgsodium \
+  && make install;
+fi
+
+# use pgsodium 2.0 for earlier versions of PostgreSQL.
+if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
+  git clone --branch v2.0.2 --single-branch https://github.com/michelp/pgsodium.git \
+  && cd pgsodium \
+  && make install;
+fi
+
 # pg_net extension (compatible with PostgreSQL 12-15)
 if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ]; then \
   git clone --branch v${PG_NET_VERSION} --single-branch https://github.com/supabase/pg_net.git \
@@ -50,3 +79,44 @@ cd /tmp && git clone --branch r3.1 --single-branch https://github.com/plv8/plv8 
   && git checkout 8b7dc73 \
   && make DOCKER=1 install \
   && strip /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/plv8-3.1.4.so
+
+# postgis extension
+apt-get install -y --no-install-recommends \
+  postgresql-${PG_SERVER_VERSION}-postgis-${POSTGIS_VERSION} \
+  postgresql-${PG_SERVER_VERSION}-postgis-${POSTGIS_VERSION}-scripts
+
+# pgrouting extension
+apt-get install -y --no-install-recommends \
+  postgresql-${PG_SERVER_VERSION}-pgrouting
+
+# pg_stat_monitor extension (available for versions 11, 12, 13 and 14)
+if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+   cd /tmp && curl -O https://repo.percona.com/apt/percona-release_latest.generic_all.deb \
+   && apt-get install -y --no-install-recommends \
+      ./percona-release_latest.generic_all.deb \
+   && apt-get update \
+   && percona-release setup ppg${PG_SERVER_VERSION} \
+   && apt-get install -y --no-install-recommends \
+      percona-pg-stat-monitor${PG_SERVER_VERSION};
+fi
+
+# rum extension
+if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+   apt-get install -y --no-install-recommends \
+      postgresql-${PG_SERVER_VERSION}-rum;
+fi
+
+# pgtap extension
+apt-get install -y --no-install-recommends \
+  postgresql-${PG_SERVER_VERSION}-pgtap
+
+# plpgsql_check extension
+apt-get install -y --no-install-recommends \
+  postgresql-${PG_SERVER_VERSION}-plpgsql-check
+
+# pljava extension
+if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+   apt-get install -y --no-install-recommends \
+      postgresql-${PG_SERVER_VERSION}-pljava;
+fi
+
