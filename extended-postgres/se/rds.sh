@@ -32,10 +32,13 @@ fi
 
 # postgis extension
 # (+ address_standardizer, postgis_raster, postgis_sfcgal, postgis_tiger_geocoder, postgis_topology)
-# already in the "Generic-Postgis" image
+apt-get install -y --no-install-recommends \
+   postgresql-${PG_SERVER_VERSION}-postgis-${POSTGIS_VERSION} \
+   postgresql-${PG_SERVER_VERSION}-postgis-${POSTGIS_VERSION}-scripts
 
 # pgrouting extension
-# already in the "Generic-Postgis" image
+apt-get install -y --no-install-recommends \
+   postgresql-${PG_SERVER_VERSION}-pgrouting
 
 # hll extension
 # already in the "Generic" image
