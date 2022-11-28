@@ -19,6 +19,12 @@ ENV POSTGIS_VERSION=${POSTGIS_VERSION:-3}
 ARG PG_PARTMAN_VERSION
 ENV PG_PARTMAN_VERSION=${PG_PARTMAN_VERSION:-"4.7.1"}
 
+# oracle_fdw variables
+ENV ORACLE_HOME=/opt/oracle/instantclient
+ENV OCI_LIB_DIR=$ORACLE_HOME
+ENV OCI_INC_DIR=$ORACLE_HOME/sdk/include
+ENV LD_LIBRARY_PATH=$ORACLE_HOME:$LD_LIBRARY_PATH
+
 ADD ./extended-postgres/se/rds.sh /
 RUN chmod +x /rds.sh
 RUN /rds.sh

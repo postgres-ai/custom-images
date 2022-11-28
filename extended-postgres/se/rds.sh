@@ -6,7 +6,8 @@ apt-get install --no-install-recommends -y apt-transport-https ca-certificates \
    libreadline-dev zlib1g-dev flex bison libxml2-dev libxslt-dev libssl-dev libxml2-utils \
    xsltproc ccache libbrotli-dev liblzo2-dev libsodium-dev libc6-dev krb5-multidev libkrb5-dev \
    postgresql-server-dev-${PG_SERVER_VERSION} libpq-dev libcurl4-openssl-dev python2 \
-   python3 pkg-config clang g++ libc++-dev libc++abi-dev libglib2.0-dev libtinfo5 ninja-build binutils libicu-dev
+   python3 pkg-config clang g++ libc++-dev libc++abi-dev libglib2.0-dev libtinfo5 ninja-build binutils libicu-dev \
+   libaio1 libaio-dev
 
 # aws_commons extension
 # Mocked
@@ -48,18 +49,14 @@ apt-get install -y --no-install-recommends \
   postgresql-${PG_SERVER_VERSION}-ip4r
 
 # oracle_fdw extension
-# TODO
-cd /tmp && wget --quiet -O /tmp/instantclient-basiclite.zip https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-basiclite-linux.x64-21.8.0.0.0dbru.zip \
-&& unzip /tmp/instantclient-basiclite.zip && mv /tmp/instantclient_21_8/ /usr/lib/oracle \
-&& cd /tmp && wget --quiet -O /tmp/instantclient-sdk.zip https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-sdk-linux.x64-21.8.0.0.0dbru.zip \
-&& unzip /tmp/instantclient-sdk.zip && mv /tmp/instantclient_21_8/sdk/include/ /usr/local/include/oracle \
-&& cd /tmp && git clone https://github.com/laurenz/oracle_fdw.git \
+mkdir -p /opt/oracle/instantclient && cd /tmp \
+&& wget --quiet -O /tmp/instantclient-basiclite.zip https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-basiclite-linux.x64-21.8.0.0.0dbru.zip \
+&& wget --quiet -O /tmp/instantclient-sdk.zip https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-sdk-linux.x64-21.8.0.0.0dbru.zip \
+&& unzip /tmp/instantclient-basiclite.zip && unzip /tmp/instantclient-sdk.zip && mv /tmp/instantclient_21_8/* /opt/oracle/instantclient \
+&& git clone https://github.com/laurenz/oracle_fdw.git \
 && cd oracle_fdw \
-&& make USE_PGXS=1 PG_CPPFLAGS="-I /usr/local/include/oracle" SHLIB_LINK="-L /usr/lib/oracle" \
-&& make USE_PGXS=1 PG_CPPFLAGS="-I /usr/local/include/oracle" SHLIB_LINK="-L /usr/lib/oracle" install
-
-## postgres=# create extension oracle_fdw;
-## ERROR:  could not load library "/usr/lib/postgresql/14/lib/oracle_fdw.so": /usr/lib/postgresql/14/lib/oracle_fdw.so: undefined symbol: OCICollAppend
+&& make \
+&& make install
 
 # log_fdw extension
 # Mocked
