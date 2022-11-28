@@ -79,8 +79,12 @@ PG_BIGM_VERSION="1.2-20200228" \
 # already in the "Generic" image
 
 # pg_partman extension
-apt-get install -y --no-install-recommends \
-  postgresql-${PG_SERVER_VERSION}-pg_partman
+if [ "$(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc)" = "1" ]; then \
+  cd /tmp && wget --quiet -O /tmp/pg_partman-${PG_PARTMAN_VERSION}.tar.gz \
+    https://github.com/pgpartman/pg_partman/archive/refs/tags/v${PG_PARTMAN_VERSION}.tar.gz \
+    && tar zxf /tmp/pg_partman-${PG_PARTMAN_VERSION}.tar.gz \
+    && cd /tmp/pg_partman-${PG_PARTMAN_VERSION} && make USE_PGXS=1 && make USE_PGXS=1 install
+fi
 
 # pg_repack extension
 # already in the "Generic" image
@@ -155,12 +159,11 @@ apt-get install -y --no-install-recommends \
   postgresql-${PG_SERVER_VERSION}-mysql-fdw
 
 # plv8 extension (+ plcoffee, plls)
-# TODO
-# cd /tmp && git clone --branch r3.1 --single-branch https://github.com/plv8/plv8 \
-#  && cd plv8 \
-#  && git checkout 8b7dc73 \
-#  && make DOCKER=1 install \
-#  && strip /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/plv8-3.1.4.so
+cd /tmp && git clone --branch r3.1 --single-branch https://github.com/plv8/plv8 \
+  && cd plv8 \
+  && git checkout 8b7dc73 \
+  && make DOCKER=1 install \
+  && strip /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/plv8-3.1.4.so
 
 # remove all auxiliary packages to reduce final image size
 cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove wget curl apt-transport-https apt-utils lsb-release bc \
