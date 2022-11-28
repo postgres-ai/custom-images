@@ -7,8 +7,7 @@ ARG BASE_IMAGE_NAME
 ARG BASE_COMMIT_REF
 
 # Build the extended-postgres image
-#FROM ${BASE_IMAGE_NAME}:${PG_SERVER_VERSION}${BASE_COMMIT_REF}
-FROM registry.gitlab.com/postgres-ai/custom-images/extended-postgres:14
+FROM ${BASE_IMAGE_NAME}:${PG_SERVER_VERSION}${BASE_COMMIT_REF}
 LABEL maintainer="postgres.ai"
 
 ARG PG_SERVER_VERSION
