@@ -1,0 +1,4 @@
+comment = 'rd_kit mock'
+default_version = '4.2'
+module_pathname = '$libdir/rd_kit'
+relocatable = false

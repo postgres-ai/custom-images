@@ -1,0 +1,4 @@
+comment = 'log_fdw mock'
+default_version = '1.3'
+module_pathname = '$libdir/log_fdw'
+relocatable = false

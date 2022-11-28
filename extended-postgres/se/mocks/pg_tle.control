@@ -1,0 +1,4 @@
+comment = 'pg_tle mock'
+default_version = '1.0.1'
+module_pathname = '$libdir/pg_tle'
+relocatable = false

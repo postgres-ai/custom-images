@@ -49,20 +49,21 @@ apt-get install -y --no-install-recommends \
 
 # oracle_fdw extension
 # TODO
-#cd /tmp && wget --quiet -O /tmp/instantclient-basiclite.zip https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-basiclite-linux.x64-21.8.0.0.0dbru.zip \
-#&& unzip /tmp/instantclient-basiclite.zip && mv /tmp/instantclient_21_8/ /usr/lib/oracle \
-#&& cd /tmp && wget --quiet -O /tmp/instantclient-sdk.zip https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-sdk-linux.x64-21.8.0.0.0dbru.zip \
-#&& unzip /tmp/instantclient-sdk.zip && mv /tmp/instantclient_21_8/sdk/include/ /usr/local/include/oracle \
-#&& cd /tmp && git clone https://github.com/laurenz/oracle_fdw.git \
-#&& cd oracle_fdw \
-#&& make USE_PGXS=1 PG_CPPFLAGS="-I /usr/local/include/oracle" SHLIB_LINK="-L /usr/lib/oracle" \
-#&& make USE_PGXS=1 PG_CPPFLAGS="-I /usr/local/include/oracle" SHLIB_LINK="-L /usr/lib/oracle" install
+cd /tmp && wget --quiet -O /tmp/instantclient-basiclite.zip https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-basiclite-linux.x64-21.8.0.0.0dbru.zip \
+&& unzip /tmp/instantclient-basiclite.zip && mv /tmp/instantclient_21_8/ /usr/lib/oracle \
+&& cd /tmp && wget --quiet -O /tmp/instantclient-sdk.zip https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-sdk-linux.x64-21.8.0.0.0dbru.zip \
+&& unzip /tmp/instantclient-sdk.zip && mv /tmp/instantclient_21_8/sdk/include/ /usr/local/include/oracle \
+&& cd /tmp && git clone https://github.com/laurenz/oracle_fdw.git \
+&& cd oracle_fdw \
+&& make USE_PGXS=1 PG_CPPFLAGS="-I /usr/local/include/oracle" SHLIB_LINK="-L /usr/lib/oracle" \
+&& make USE_PGXS=1 PG_CPPFLAGS="-I /usr/local/include/oracle" SHLIB_LINK="-L /usr/lib/oracle" install
 
 ## postgres=# create extension oracle_fdw;
 ## ERROR:  could not load library "/usr/lib/postgresql/14/lib/oracle_fdw.so": /usr/lib/postgresql/14/lib/oracle_fdw.so: undefined symbol: OCICollAppend
 
 # log_fdw extension
-# TODO
+# Mocked
+# This extension allowing access database engine log using a SQL interface.
 
 # orafce extension
 apt-get install -y --no-install-recommends \
@@ -89,7 +90,9 @@ apt-get install -y --no-install-recommends \
     postgresql-${PG_SERVER_VERSION}-similarity
 
 # pg_transport extension
-# TODO
+# Mocked
+# This extension provides a physical transport mechanism to move PostgreSQL databases between two Amazon RDS DB instances.
+# https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/PostgreSQL.TransportableDB.html
 
 # pgaudit extension
 # already in the "Generic" image
@@ -108,7 +111,7 @@ apt-get install -y --no-install-recommends \
   postgresql-plperl-${PG_SERVER_VERSION}
 
 # flow_control extension
-# TODO
+# Mocked
 
 # plprofiler extension
 if [ "$(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc)" = "1" ]; then \
@@ -121,17 +124,19 @@ apt-get install -y --no-install-recommends \
   postgresql-pltcl-${PG_SERVER_VERSION}
 
 # pg_tle extension
-# TODO
+# Mocked
+# Trusted-Language Extensions for PostgreSQL.
 
 # prefix extension
 apt-get install -y --no-install-recommends \
   postgresql-${PG_SERVER_VERSION}-prefix
 
 # rdkit extension
-# TODO
+# Mocked
+# RDKit is a collection of cheminformatics and machine-learning software written in C++ and Python.
 
 # rds_tools extension
-# TODO
+# Mocked
 
 # tds_fdw extension
 apt-get install -y --no-install-recommends \
@@ -141,8 +146,9 @@ apt-get install -y --no-install-recommends \
 cd /tmp && git clone https://github.com/r888888888/test_parser.git \
 && cd test_parser && make && make install
 
-# tsearch2 extension
-# TODO
+# tsearch2 extension (deprecated)
+# The tsearch2 extension is deprecated in version 10.
+# The tsearch2 extension was remove from PostgreSQL version 11.1 on Amazon RDS (deprecated).
 
 # mysql_fdw extension
 apt-get install -y --no-install-recommends \
@@ -150,6 +156,11 @@ apt-get install -y --no-install-recommends \
 
 # plv8 extension (+ plcoffee, plls)
 # TODO
+# cd /tmp && git clone --branch r3.1 --single-branch https://github.com/plv8/plv8 \
+#  && cd plv8 \
+#  && git checkout 8b7dc73 \
+#  && make DOCKER=1 install \
+#  && strip /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/plv8-3.1.4.so
 
 # remove all auxiliary packages to reduce final image size
 cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove wget curl apt-transport-https apt-utils lsb-release bc \

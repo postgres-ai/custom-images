@@ -73,13 +73,6 @@ if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
   && cd supautils && make && make install;
 fi
 
-# plv8 extension
-cd /tmp && git clone --branch r3.1 --single-branch https://github.com/plv8/plv8 \
-  && cd plv8 \
-  && git checkout 8b7dc73 \
-  && make DOCKER=1 install \
-  && strip /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/plv8-3.1.4.so
-
 # postgis extension
 apt-get install -y --no-install-recommends \
   postgresql-${PG_SERVER_VERSION}-postgis-${POSTGIS_VERSION} \
@@ -120,3 +113,9 @@ if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
       postgresql-${PG_SERVER_VERSION}-pljava;
 fi
 
+# plv8 extension
+cd /tmp && git clone --branch r3.1 --single-branch https://github.com/plv8/plv8 \
+  && cd plv8 \
+  && git checkout 8b7dc73 \
+  && make DOCKER=1 install \
+  && strip /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/plv8-3.1.4.so

@@ -1,0 +1,4 @@
+comment = 'flow_control mock'
+default_version = '1.0'
+module_pathname = '$libdir/flow_control'
+relocatable = false
