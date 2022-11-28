@@ -56,7 +56,8 @@ mkdir -p /opt/oracle/instantclient && cd /tmp \
 && git clone https://github.com/laurenz/oracle_fdw.git \
 && cd oracle_fdw \
 && make \
-&& make install
+&& make install \
+&& echo /opt/oracle/instantclient > /etc/ld.so.conf.d/oracle.conf && ldconfig
 
 # log_fdw extension
 # Mocked
