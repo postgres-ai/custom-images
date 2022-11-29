@@ -43,7 +43,7 @@ stages:
     refs:
       - branches
     variables:
-      - $CI_COMMIT_REF_SLUG != "master"
+      - $CI_COMMIT_REF_SLUG != "master" && $CI_BUILD_EXTENSION == null
     changes:
       - migration-tools/*
   when: manual

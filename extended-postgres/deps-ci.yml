@@ -3,19 +3,20 @@ stages:
 
 .build_plv8_extension_template: &build_plv8
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_BUILD_EXTENSION == "plv8"'
       when: always
     - when: never
   stage: build
   image: postgres:${PG_MAJOR}-bullseye
   variables:
-    PLV8_VERSION: 3.1.4
-    PLV8_BRANCH: r3.1
-    PACKAGE_NAME: plv8
+    PLV8_VERSION: "3.1.4"
+    PLV8_BRANCH: "r3.1"
+    PACKAGE_NAME: "plv8"
   script:
+    - env
     - apt-get update
     - apt-get install -y build-essential curl python3 ninja-build git wget postgresql-server-dev-${PG_MAJOR} libtinfo5 pkg-config clang binutils
-    - git clone --branch ${PLV8_BRANCH} --single-branch https://github.com/plv8/plv8
+    - git clone --branch "${PLV8_BRANCH}" --single-branch https://github.com/plv8/plv8
     - cd plv8
     - git checkout bcddd92f71530e117f2f98b92d206dafe824f73a
 #    - make DOCKER=1 generate_upgrades
