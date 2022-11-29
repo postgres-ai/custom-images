@@ -16,10 +16,8 @@ apt-get install -y --no-install-recommends \
 
 # pg_partman extension
 if [ "$(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc)" = "1" ]; then \
-  cd /tmp && wget --quiet -O /tmp/pg_partman-${PG_PARTMAN_VERSION}.tar.gz \
-    https://github.com/pgpartman/pg_partman/archive/refs/tags/v${PG_PARTMAN_VERSION}.tar.gz \
-    && tar zxf /tmp/pg_partman-${PG_PARTMAN_VERSION}.tar.gz \
-    && cd /tmp/pg_partman-${PG_PARTMAN_VERSION} && make USE_PGXS=1 && make USE_PGXS=1 install
+  apt-get install -y --no-install-recommends \
+    postgresql-${PG_SERVER_VERSION}-partman
 fi
 
 # pgaudit extension
