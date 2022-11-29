@@ -26,6 +26,8 @@ stages:
     - mkdir -p /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/
     - mkdir -p /usr/share/postgresql/${PG_MAJOR}/extension/
     - touch /usr/lib/postgresql/${PG_MAJOR}/lib/plv8.h /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-common.h
+    - touch /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}.index.bc
+    - touch /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}/file.index
     - touch /usr/share/postgresql/${PG_MAJOR}/extension/plv8.sql /usr/share/postgresql/${PG_MAJOR}/extension/plv8.control
     - touch /usr/share/postgresql/${PG_MAJOR}/extension/plls.sql /usr/share/postgresql/${PG_MAJOR}/extension/plls.control
     - touch /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee.sql /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee.control
