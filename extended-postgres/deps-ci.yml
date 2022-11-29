@@ -1,0 +1,82 @@
+stages:
+  - build
+
+.build_plv8_extension_template: &build_plv8
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always
+    - when: never
+  stage: build
+  image: postgres:${PG_MAJOR}-bullseye
+  variables:
+    PLV8_VERSION: 3.1.4
+    PLV8_BRANCH: r3.1
+    PACKAGE_NAME: plv8
+  script:
+    - apt-get update
+    - apt-get install -y build-essential curl python3 ninja-build git wget postgresql-server-dev-${PG_MAJOR} libtinfo5 pkg-config clang binutils
+    - git clone --branch ${PLV8_BRANCH} --single-branch https://github.com/plv8/plv8
+    - cd plv8
+    - git checkout bcddd92f71530e117f2f98b92d206dafe824f73a
+#    - make DOCKER=1 generate_upgrades
+#    - make DOCKER=1 install
+#    - strip /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-${PLV8_VERSION}.so
+
+    # Dummy content
+    - mkdir -p /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/
+    - mkdir -p /usr/share/postgresql/${PG_MAJOR}/extension/
+    - touch /usr/lib/postgresql/${PG_MAJOR}/lib/plv8.h /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-common.h
+    - touch /usr/share/postgresql/${PG_MAJOR}/extension/plv8.sql /usr/share/postgresql/${PG_MAJOR}/extension/plv8.control
+    - touch /usr/share/postgresql/${PG_MAJOR}/extension/plls.sql /usr/share/postgresql/${PG_MAJOR}/extension/plls.control
+    - touch /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee.sql /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee.control
+
+    - cd ../ && mkdir -p plv8-output
+    - /usr/lib/postgresql/${PG_MAJOR}/lib/plv8* plv8-output/lib/
+    - /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}.index.bc plv8-output/lib/bitcode/
+    - /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}/* plv8-output/lib/bitcode/plv8-${PLV8_VERSION}/
+    - /usr/share/postgresql/${PG_MAJOR}/extension/plv8* plv8-output/extension/
+    - /usr/share/postgresql/${PG_MAJOR}/extension/plls* plv8-output/extension/
+    - /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee* plv8-output/extension/
+    - tar -czvf plv8-${PLV8_VERSION}.tar.gz plv8-output
+
+    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file plv8-${PLV8_VERSION}.tar.gz \ 
+      "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PG_MAJOR}/plv8-${PLV8_VERSION}.tar.gz"'
+
+  artifacts:
+    paths:
+      - plv8-output
+
+#build-plv8-postgres-9-6:
+#  <<: *build_plv8
+#  variables:
+#    PG_MAJOR: "9.6"
+#
+#build-plv8-postgres-10:
+#  <<: *build_plv8
+#  variables:
+#    PG_MAJOR: "10"
+#
+#build-plv8-postgres-11:
+#  <<: *build_plv8
+#  variables:
+#    PG_MAJOR: "11"
+#
+#build-plv8-postgres-12:
+#  <<: *build_plv8
+#  variables:
+#    PG_MAJOR: "12"
+#
+#build-plv8-postgres-13:
+#  <<: *build_plv8
+#  variables:
+#    PG_MAJOR: "13"
+
+build-plv8-postgres-14:
+  <<: *build_plv8
+  variables:
+    PG_MAJOR: "14"
+
+build-plv8-postgres-15:
+  <<: *build_plv8
+  variables:
+    PG_MAJOR: "15"
