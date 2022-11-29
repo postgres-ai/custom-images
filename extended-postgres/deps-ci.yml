@@ -11,26 +11,16 @@ stages:
   before_script:
     - export PLV8_VERSION=3.1.4
     - export PLV8_BRANCH=r3.1
-    - export PACKAGE_NAME=postgres-${PG_MAJOR}-plv8
+    - export PACKAGE_NAME=postgresql-${PG_MAJOR}-plv8
   script:
     - apt-get update
     - apt-get install -y build-essential curl python3 ninja-build git wget postgresql-server-dev-${PG_MAJOR} libtinfo5 pkg-config clang binutils
     - git clone --branch "${PLV8_BRANCH}" --single-branch https://github.com/plv8/plv8
     - cd plv8
     - git checkout bcddd92f71530e117f2f98b92d206dafe824f73a
-#    - make DOCKER=1 generate_upgrades
-#    - make DOCKER=1 install
-#    - strip /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-${PLV8_VERSION}.so
-
-    # Dummy content
-    - mkdir -p /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}
-    - mkdir -p /usr/share/postgresql/${PG_MAJOR}/extension/
-    - touch /usr/lib/postgresql/${PG_MAJOR}/lib/plv8.h /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-common.h
-    - touch /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}.index.bc
-    - touch /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}/file.index
-    - touch /usr/share/postgresql/${PG_MAJOR}/extension/plv8.sql /usr/share/postgresql/${PG_MAJOR}/extension/plv8.control
-    - touch /usr/share/postgresql/${PG_MAJOR}/extension/plls.sql /usr/share/postgresql/${PG_MAJOR}/extension/plls.control
-    - touch /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee.sql /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee.control
+    - make DOCKER=1 generate_upgrades
+    - make DOCKER=1 install
+    - strip /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-${PLV8_VERSION}.so
 
     - cd ../
     - mkdir -p plv8-output/lib/bitcode/plv8-${PLV8_VERSION}
@@ -44,10 +34,11 @@ stages:
     - tar -czvf plv8-${PLV8_VERSION}.tar.gz plv8-output
 
     - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file plv8-${PLV8_VERSION}.tar.gz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PLV8_VERSION}/plv8-${PLV8_VERSION}.tar.gz"'
-
   artifacts:
     paths:
       - plv8-output
+  tags:
+    - runner-build
 
 #build-plv8-postgres-9-6:
 #  <<: *build_plv8
@@ -79,7 +70,7 @@ build-plv8-postgres-14:
   variables:
     PG_MAJOR: "14"
 
-build-plv8-postgres-15:
-  <<: *build_plv8
-  variables:
-    PG_MAJOR: "15"
+#build-plv8-postgres-15:
+#  <<: *build_plv8
+#  variables:
+#    PG_MAJOR: "15"
