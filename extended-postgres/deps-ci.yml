@@ -30,7 +30,9 @@ stages:
     - touch /usr/share/postgresql/${PG_MAJOR}/extension/plls.sql /usr/share/postgresql/${PG_MAJOR}/extension/plls.control
     - touch /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee.sql /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee.control
 
-    - cd ../ && mkdir -p plv8-output
+    - cd ../
+    - mkdir -p plv8-output/lib/bitcode/plv8-${PLV8_VERSION}
+    - mkdir -p plv8-output/extension
     - cp /usr/lib/postgresql/${PG_MAJOR}/lib/plv8* plv8-output/lib/
     - cp /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}.index.bc plv8-output/lib/bitcode/
     - cp /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}/* plv8-output/lib/bitcode/plv8-${PLV8_VERSION}/
