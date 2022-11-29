@@ -23,7 +23,7 @@ stages:
 #    - strip /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-${PLV8_VERSION}.so
 
     # Dummy content
-    - mkdir -p /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/
+    - mkdir -p /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}
     - mkdir -p /usr/share/postgresql/${PG_MAJOR}/extension/
     - touch /usr/lib/postgresql/${PG_MAJOR}/lib/plv8.h /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-common.h
     - touch /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}.index.bc
