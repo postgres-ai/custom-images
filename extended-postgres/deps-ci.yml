@@ -43,8 +43,7 @@ stages:
     - cp /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee* plv8-output/extension/
     - tar -czvf plv8-${PLV8_VERSION}.tar.gz plv8-output
 
-    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file plv8-${PLV8_VERSION}.tar.gz \ 
-      "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PG_MAJOR}/plv8-${PLV8_VERSION}.tar.gz"'
+    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file plv8-${PLV8_VERSION}.tar.gz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PG_MAJOR}/plv8-${PLV8_VERSION}.tar.gz"'
 
   artifacts:
     paths:
