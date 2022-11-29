@@ -38,15 +38,14 @@ stages:
     changes:
       - migration-tools/*
 
-.only_var_template: &only_feature
-  only:
-    refs:
-      - branches
-    variables:
-      - $CI_COMMIT_REF_SLUG != "master" && $CI_BUILD_EXTENSION == null
-    changes:
-      - migration-tools/*
-  when: manual
+.only_branch_template: &only_feature
+  rules:
+    - if: $CI_BUILD_EXTENSION != null
+      when: never
+    - if: $CI_COMMIT_REF_SLUG != "master"
+      changes:
+        - migration-tools/*
+      when: manual
 
 build-sqitch-image-latest:
   <<: *build_image_definition_dh
