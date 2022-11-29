@@ -11,7 +11,7 @@ stages:
   before_script:
     - export PLV8_VERSION=3.1.4
     - export PLV8_BRANCH=r3.1
-    - export PACKAGE_NAME=plv8
+    - export PACKAGE_NAME=postgres-${PG_MAJOR}-plv8
   script:
     - apt-get update
     - apt-get install -y build-essential curl python3 ninja-build git wget postgresql-server-dev-${PG_MAJOR} libtinfo5 pkg-config clang binutils
@@ -43,7 +43,7 @@ stages:
     - cp /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee* plv8-output/extension/
     - tar -czvf plv8-${PLV8_VERSION}.tar.gz plv8-output
 
-    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file plv8-${PLV8_VERSION}.tar.gz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PG_MAJOR}/plv8-${PLV8_VERSION}.tar.gz"'
+    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file plv8-${PLV8_VERSION}.tar.gz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PLV8_VERSION}/plv8-${PLV8_VERSION}.tar.gz"'
 
   artifacts:
     paths:
