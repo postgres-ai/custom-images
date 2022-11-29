@@ -4,6 +4,6 @@ stages:
   - build-extended-image
 
 include:
-  - local: '/extended-postgres/deps-ci.yml'
+  - local: '/extended-postgres/extensions-ci.yml'
   - local: '/extended-postgres/build-images-ci.yml'
   - local: '/migration-tools/build-images-migration-tools.yml'
