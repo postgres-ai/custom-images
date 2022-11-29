@@ -114,8 +114,6 @@ if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
 fi
 
 # plv8 extension
-cd /tmp && git clone --branch r3.1 --single-branch https://github.com/plv8/plv8 \
-  && cd plv8 \
-  && git checkout 8b7dc73 \
-  && make DOCKER=1 install \
-  && strip /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/plv8-3.1.4.so
+# TODO: use a pre-compiled package.
+#  See se_feature_job_template from "extended-postgres/se-images-ci.yml".
+#  The archive structure is described in "extended-postgres/extensions-ci.yml"
