@@ -31,12 +31,12 @@ stages:
     - touch /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee.sql /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee.control
 
     - cd ../ && mkdir -p plv8-output
-    - /usr/lib/postgresql/${PG_MAJOR}/lib/plv8* plv8-output/lib/
-    - /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}.index.bc plv8-output/lib/bitcode/
-    - /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}/* plv8-output/lib/bitcode/plv8-${PLV8_VERSION}/
-    - /usr/share/postgresql/${PG_MAJOR}/extension/plv8* plv8-output/extension/
-    - /usr/share/postgresql/${PG_MAJOR}/extension/plls* plv8-output/extension/
-    - /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee* plv8-output/extension/
+    - cp /usr/lib/postgresql/${PG_MAJOR}/lib/plv8* plv8-output/lib/
+    - cp /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}.index.bc plv8-output/lib/bitcode/
+    - cp /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}/* plv8-output/lib/bitcode/plv8-${PLV8_VERSION}/
+    - cp /usr/share/postgresql/${PG_MAJOR}/extension/plv8* plv8-output/extension/
+    - cp /usr/share/postgresql/${PG_MAJOR}/extension/plls* plv8-output/extension/
+    - cp /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee* plv8-output/extension/
     - tar -czvf plv8-${PLV8_VERSION}.tar.gz plv8-output
 
     - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file plv8-${PLV8_VERSION}.tar.gz \ 

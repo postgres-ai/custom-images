@@ -42,7 +42,7 @@ stages:
   rules:
     - if: $CI_BUILD_EXTENSION != null
       when: never
-    - if: $CI_COMMIT_REF_SLUG != "master"
+    - if: $CI_COMMIT_BRANCH && $CI_COMMIT_REF_SLUG != "master"
       changes:
         - migration-tools/*
       when: manual
