@@ -50,27 +50,27 @@ build-plv8-postgres-10:
   variables:
     PG_MAJOR: "10"
 
-#build-plv8-postgres-11:
-#  <<: *build_plv8
-#  variables:
-#    PG_MAJOR: "11"
-#
-#build-plv8-postgres-12:
-#  <<: *build_plv8
-#  variables:
-#    PG_MAJOR: "12"
-#
-#build-plv8-postgres-13:
-#  <<: *build_plv8
-#  variables:
-#    PG_MAJOR: "13"
+build-plv8-postgres-11:
+  <<: *build_plv8
+  variables:
+    PG_MAJOR: "11"
 
-#build-plv8-postgres-14:
-#  <<: *build_plv8
-#  variables:
-#    PG_MAJOR: "14"
+build-plv8-postgres-12:
+  <<: *build_plv8
+  variables:
+    PG_MAJOR: "12"
 
-#build-plv8-postgres-15:
-#  <<: *build_plv8
-#  variables:
-#    PG_MAJOR: "15"
+build-plv8-postgres-13:
+  <<: *build_plv8
+  variables:
+    PG_MAJOR: "13"
+
+build-plv8-postgres-14:
+  <<: *build_plv8
+  variables:
+    PG_MAJOR: "14"
+
+build-plv8-postgres-15:
+  <<: *build_plv8
+  variables:
+    PG_MAJOR: "15"

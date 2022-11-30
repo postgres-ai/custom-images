@@ -12,7 +12,7 @@ stages:
     - export PLV8_PACKAGE_NAME=postgresql-${PG_SERVER_VERSION}-plv8
   script:
       - apk add --no-cache bash
-      # - 'curl -O --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PLV8_PACKAGE_NAME}/${PLV8_VERSION}/plv8-${PLV8_VERSION}.tar.gz"'
+      - 'curl -O plv8.tar.gz --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PLV8_PACKAGE_NAME}/${PLV8_VERSION}/plv8-${PLV8_VERSION}.tar.gz"'
       - bash ./ci_docker_build_push.sh
   variables: &extended_image_vars_gl
     REGISTRY_USER: "${CI_REGISTRY_USER}"
