@@ -29,6 +29,7 @@ stages:
 
 .release-vars:
   variables: &release_vars
+    BASE_IMAGE_NAME: "postgresai/extended-postgres"
     BASE_COMMIT_REF: ""
 
 .only_tag_template: &only_tag_release
