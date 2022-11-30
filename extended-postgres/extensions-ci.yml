@@ -26,8 +26,8 @@ stages:
     - mkdir -p plv8-output/lib/bitcode/plv8-${PLV8_VERSION}
     - mkdir -p plv8-output/extension
     - cp /usr/lib/postgresql/${PG_MAJOR}/lib/plv8* plv8-output/lib/
-    - cp /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}.index.bc plv8-output/lib/bitcode/
-    - cp /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}/* plv8-output/lib/bitcode/plv8-${PLV8_VERSION}/
+    - cp /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}.index.bc plv8-output/lib/bitcode/ || true
+    - cp /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode/plv8-${PLV8_VERSION}/* plv8-output/lib/bitcode/plv8-${PLV8_VERSION}/ || true
     - cp /usr/share/postgresql/${PG_MAJOR}/extension/plv8* plv8-output/extension/
     - cp /usr/share/postgresql/${PG_MAJOR}/extension/plls* plv8-output/extension/
     - cp /usr/share/postgresql/${PG_MAJOR}/extension/plcoffee* plv8-output/extension/
@@ -50,27 +50,27 @@ build-plv8-postgres-10:
   variables:
     PG_MAJOR: "10"
 
-build-plv8-postgres-11:
-  <<: *build_plv8
-  variables:
-    PG_MAJOR: "11"
-
-build-plv8-postgres-12:
-  <<: *build_plv8
-  variables:
-    PG_MAJOR: "12"
-
-build-plv8-postgres-13:
-  <<: *build_plv8
-  variables:
-    PG_MAJOR: "13"
+#build-plv8-postgres-11:
+#  <<: *build_plv8
+#  variables:
+#    PG_MAJOR: "11"
+#
+#build-plv8-postgres-12:
+#  <<: *build_plv8
+#  variables:
+#    PG_MAJOR: "12"
+#
+#build-plv8-postgres-13:
+#  <<: *build_plv8
+#  variables:
+#    PG_MAJOR: "13"
 
 #build-plv8-postgres-14:
 #  <<: *build_plv8
 #  variables:
 #    PG_MAJOR: "14"
 
-build-plv8-postgres-15:
-  <<: *build_plv8
-  variables:
-    PG_MAJOR: "15"
+#build-plv8-postgres-15:
+#  <<: *build_plv8
+#  variables:
+#    PG_MAJOR: "15"
