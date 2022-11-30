@@ -10,6 +10,7 @@ stages:
   before_script:
     - export PLV8_VERSION=3.1.4
   script:
+      - echo $BASE_COMMIT_REF
       - apk add --no-cache bash wget
       - export PLV8_PACKAGE_NAME=postgresql-${PG_SERVER_VERSION}-plv8
       - 'wget --quiet -O plv8.tar.gz --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PLV8_PACKAGE_NAME}/${PLV8_VERSION}/plv8-${PLV8_VERSION}.tar.gz"'
@@ -26,9 +27,11 @@ stages:
     DOCKER_TLS_CERTDIR: ""
     DOCKER_DRIVER: overlay2
 
-.only_tag_template: &only_tag_release
+.release-vars: &release_vars
   variables:
     BASE_COMMIT_REF: ""
+
+.only_tag_template: &only_tag_release
   rules:
     - if: $CI_COMMIT_TAG =~ /^[0-9.]+$/
       when: always
@@ -85,6 +88,7 @@ build-extended-postgres-14-branch:
   <<: *only_branch
   variables:
     <<: *extended_image_vars_gl
+    <<: *release_vars # TEST
     PG_SERVER_VERSION: "14"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
 
@@ -103,6 +107,7 @@ build-extended-postgres-9-6-release:
   <<: *only_tag_release
   variables:
     <<: *extended_image_vars_gl
+    <<: *release_vars
     PG_SERVER_VERSION: "9.6"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
@@ -111,6 +116,7 @@ build-extended-postgres-10-release:
   <<: *only_tag_release
   variables:
     <<: *extended_image_vars_gl
+    <<: *release_vars
     PG_SERVER_VERSION: "10"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
@@ -119,6 +125,7 @@ build-extended-postgres-11-release:
   <<: *only_tag_release
   variables:
     <<: *extended_image_vars_gl
+    <<: *release_vars
     PG_SERVER_VERSION: "11"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
@@ -127,6 +134,7 @@ build-extended-postgres-12-release:
   <<: *only_tag_release
   variables:
     <<: *extended_image_vars_gl
+    <<: *release_vars
     PG_SERVER_VERSION: "12"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
@@ -135,6 +143,7 @@ build-extended-postgres-13-release:
   <<: *only_tag_release
   variables:
     <<: *extended_image_vars_gl
+    <<: *release_vars
     PG_SERVER_VERSION: "13"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
@@ -143,6 +152,7 @@ build-extended-postgres-14-release:
   <<: *only_tag_release
   variables:
     <<: *extended_image_vars_gl
+    <<: *release_vars
     PG_SERVER_VERSION: "14"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
@@ -151,5 +161,6 @@ build-extended-postgres-15-release:
   <<: *only_tag_release
   variables:
     <<: *extended_image_vars_gl
+    <<: *release_vars
     PG_SERVER_VERSION: "15"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
