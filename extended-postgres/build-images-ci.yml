@@ -96,7 +96,7 @@ build-generic-images:
 build-generic-postgis-images:
   stage: build-extended-image
   rules:
-    - !reference [.only_feature, .only_tag_release, rules]
+    - !reference [.only_feature_template, .only_tag_template, rules]
   variables:
     SE_TYPE: postgis
   trigger:
