@@ -89,7 +89,6 @@ build-extended-postgres-14-branch:
   <<: *only_branch
   variables:
     <<: *extended_image_vars_gl
-    <<: *release_vars # TEST
     PG_SERVER_VERSION: "14"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_REF_SLUG}"
 
