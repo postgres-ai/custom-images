@@ -114,6 +114,12 @@ if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
 fi
 
 # plv8 extension
-# TODO: use a pre-compiled package.
-#  See se_feature_job_template from "extended-postgres/se-images-ci.yml".
-#  The archive structure is described in "extended-postgres/extensions-ci.yml"
+cd /tmp && tar zxf plv8.tar.gz
+mkdir -p /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/bitcode/plv8-${PLV8_VERSION}/
+mkdir -p /usr/share/postgresql/${PG_SERVER_VERSION}/extension/
+cp plv8-output/lib/plv8* /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/
+cp plv8-output/lib/bitcode/plv8-${PLV8_VERSION}.index.bc /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/bitcode/ || true
+cp plv8-output/lib/bitcode/plv8-${PLV8_VERSION}/* /usr/lib/postgresql/${PG_SERVER_VERSION}/lib/bitcode/plv8-${PLV8_VERSION}/  || true
+cp plv8-output/extension/plv8* /usr/share/postgresql/${PG_SERVER_VERSION}/extension/
+cp plv8-output/extension/plls* /usr/share/postgresql/${PG_SERVER_VERSION}/extension/
+cp plv8-output/extension/plcoffee* /usr/share/postgresql/${PG_SERVER_VERSION}/extension/
