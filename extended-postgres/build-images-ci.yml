@@ -92,6 +92,7 @@ build-generic-images:
   trigger:
     include: extended-postgres/generic-ci.yml
     strategy: depend
+strategy: depend
 
 build-generic-postgis-images:
   stage: build-extended-image
@@ -103,6 +104,7 @@ build-generic-postgis-images:
   trigger:
     include:
       - local: extended-postgres/se-images-ci.yml
+    strategy: depend
 
 build-rds-images:
   stage: build-extended-image
@@ -114,6 +116,7 @@ build-rds-images:
   trigger:
     include:
       - local: extended-postgres/se-images-ci.yml
+    strategy: depend
 
 build-supabase-images:
   stage: build-extended-image
@@ -125,6 +128,7 @@ build-supabase-images:
   trigger:
     include:
       - local: extended-postgres/se-images-ci.yml
+    strategy: depend
 
 build-timescale-cloud-images:
   stage: build-extended-image
@@ -136,6 +140,7 @@ build-timescale-cloud-images:
   trigger:
     include:
       - local: extended-postgres/se-images-ci.yml
+    strategy: depend
 
 build-heroku-images:
   stage: build-extended-image
@@ -147,3 +152,4 @@ build-heroku-images:
   trigger:
     include:
       - local: extended-postgres/se-images-ci.yml
+    strategy: depend

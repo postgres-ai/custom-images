@@ -41,8 +41,8 @@ stages:
   rules:
     - if: $CI_BUILD_EXTENSION != null
       when: never
-    - if: $CI_COMMIT_REF_SLUG != "master"
-      when: always
+    - if: $CI_COMMIT_BRANCH && $CI_COMMIT_REF_SLUG != "master"
+      when: manual
 
 build-extended-postgres-9-6-branch:
   <<: *build_image_definition_gl
