@@ -27,8 +27,8 @@ stages:
     DOCKER_TLS_CERTDIR: ""
     DOCKER_DRIVER: overlay2
 
-.release-vars: &release_vars
-  variables:
+.release-vars:
+  variables: &release_vars
     BASE_COMMIT_REF: ""
 
 .only_tag_template: &only_tag_release
