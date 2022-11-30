@@ -19,9 +19,9 @@ stages:
     DOCKER_NAME: "postgresai/extended-postgres"
 
 .only_tag_template: &only_tag_release
-  only:
-    variables:
-      - $CI_COMMIT_TAG =~ /^[0-9.]+$/
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^[0-9.]+$/
+      when: manual
 
 .only_feature_template: &only_feature
   rules:
@@ -96,6 +96,7 @@ build-generic-images:
 build-generic-postgis-images:
   stage: build-extended-image
   <<: *only_feature
+  <<: *only_tag_release
   variables:
     SE_TYPE: postgis
   trigger:
@@ -105,6 +106,7 @@ build-generic-postgis-images:
 build-rds-images:
   stage: build-extended-image
   <<: *only_feature
+  <<: *only_tag_release
   variables:
     SE_TYPE: rds
   trigger:
@@ -114,6 +116,7 @@ build-rds-images:
 build-supabase-images:
   stage: build-extended-image
   <<: *only_feature
+  <<: *only_tag_release
   variables:
     SE_TYPE: supabase
   trigger:
@@ -123,6 +126,7 @@ build-supabase-images:
 build-timescale-cloud-images:
   stage: build-extended-image
   <<: *only_feature
+  <<: *only_tag_release
   variables:
     SE_TYPE: timescale-cloud
   trigger:
@@ -132,6 +136,7 @@ build-timescale-cloud-images:
 build-heroku-images:
   stage: build-extended-image
   <<: *only_feature
+  <<: *only_tag_release
   variables:
     SE_TYPE: heroku
   trigger:
