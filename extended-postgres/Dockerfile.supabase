@@ -30,6 +30,11 @@ ENV PGSODIUM_VERSION=${PGSODIUM_VERSION:-3.0.5}
 ARG POSTGIS_VERSION
 ENV POSTGIS_VERSION=${POSTGIS_VERSION:-3}
 
+ARG PLV8_VERSION
+ENV PLV8_VERSION=${PLV8_VERSION:-3.1.4}
+
+COPY plv8.tar.gz /tmp/plv8.tar.gz
+
 ADD ./extended-postgres/se/supabase.sh /
 RUN chmod +x /supabase.sh
 RUN /supabase.sh
