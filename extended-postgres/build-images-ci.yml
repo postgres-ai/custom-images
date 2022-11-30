@@ -18,12 +18,12 @@ stages:
     DOCKER_FILE: "extended-postgres/Dockerfile"
     DOCKER_NAME: "postgresai/extended-postgres"
 
-.only_tag_template: &only_tag_release
+.only-tag-template: &only_tag_release
   rules:
     - if: $CI_COMMIT_TAG =~ /^[0-9.]+$/
       when: manual
 
-.only_feature_template: &only_feature
+.only-feature-template: &only_feature
   rules:
     - if: $CI_BUILD_EXTENSION != null
       when: never
@@ -96,7 +96,8 @@ build-generic-images:
 build-generic-postgis-images:
   stage: build-extended-image
   rules:
-    - !reference [.only_feature_template, .only_tag_template, rules]
+    - !reference [.only-tag-template, rules]
+    - !reference [.only-feature-template, rules]
   variables:
     SE_TYPE: postgis
   trigger:
