@@ -91,7 +91,7 @@ build-generic-images:
   <<: *only_feature
   trigger:
     include: extended-postgres/generic-ci.yml
-    strategy: depend
+#    strategy: depend
 
 build-generic-postgis-images:
   stage: build-extended-image
