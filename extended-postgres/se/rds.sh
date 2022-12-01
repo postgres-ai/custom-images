@@ -135,8 +135,10 @@ apt-get install -y --no-install-recommends \
   postgresql-pltcl-${PG_SERVER_VERSION}
 
 # pg_tle extension
-# Mocked
-# Trusted-Language Extensions for PostgreSQL.
+if [ "$(echo "$PG_SERVER_VERSION > 13" | /usr/bin/bc)" = "1" ]; then \
+  cd /tmp && git clone --branch v${PG_TLE_VERSION} --single-branch https://github.com/aws/pg_tle.git \
+  && cd pg_tle && make && make install
+fi
 
 # prefix extension
 apt-get install -y --no-install-recommends \
