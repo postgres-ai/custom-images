@@ -1,0 +1,4 @@
+comment = 'babelfishpg_telemetry mock'
+default_version = '1.0'
+module_pathname = '$libdir/babelfishpg_telemetry'
+relocatable = false

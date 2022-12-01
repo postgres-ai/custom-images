@@ -1,0 +1,4 @@
+comment = 'babelfishpg_tds mock'
+default_version = '1.0'
+module_pathname = '$libdir/babelfishpg_tds'
+relocatable = false

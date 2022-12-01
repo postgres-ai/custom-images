@@ -21,7 +21,7 @@ stages:
 .only-tag-template: &only_tag_release
   rules:
     - if: $CI_COMMIT_TAG =~ /^[0-9.]+$/
-      when: always
+      when: manual
 
 .only-feature-template: &only_feature
   rules:

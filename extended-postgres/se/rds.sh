@@ -9,6 +9,12 @@ apt-get install --no-install-recommends -y apt-transport-https ca-certificates \
    python3 pkg-config clang g++ libc++-dev libc++abi-dev libglib2.0-dev libtinfo5 ninja-build binutils libicu-dev \
    libaio1 libaio-dev
 
+# apg_plan_mgmt extension
+# Mocked
+
+# aurora_stat_utils extension
+# Mocked
+
 # aws_commons extension
 # Mocked
 
@@ -16,11 +22,16 @@ apt-get install --no-install-recommends -y apt-transport-https ca-certificates \
 # Mocked
 
 # aws_s3 extension
+# Install extension and replace version from 0.0.1 to 1.1 to avoid warnings
 if [ "$(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc)" = "1" ]; then \
   apt-get install -y --no-install-recommends postgresql-plpython3-"${PG_SERVER_VERSION}" \
   && cd /tmp && git clone https://github.com/chimpler/postgres-aws-s3.git \
-  && cd postgres-aws-s3 && pg_config && make && make install;
+  && cd postgres-aws-s3 && pg_config && make && make install \
+  && mv /usr/share/postgresql/${PG_SERVER_VERSION}/extension/aws_s3--0.0.1.sql /usr/share/postgresql/${PG_SERVER_VERSION}/extension/aws_s3--1.1.sql
 fi
+
+# aws_ml extension
+# Mocked
 
 # pg_hint_plan extension
 # already in the "Generic" image
@@ -164,6 +175,20 @@ cp plv8-output/lib/bitcode/plv8-${PLV8_VERSION}/* /usr/lib/postgresql/${PG_SERVE
 cp plv8-output/extension/plv8* /usr/share/postgresql/${PG_SERVER_VERSION}/extension/
 cp plv8-output/extension/plls* /usr/share/postgresql/${PG_SERVER_VERSION}/extension/
 cp plv8-output/extension/plcoffee* /usr/share/postgresql/${PG_SERVER_VERSION}/extension/
+
+# babelfish extensions
+# babelfishpg_money
+cd /tmp && git clone --branch BABEL_2_3_STABLE --single-branch https://github.com/babelfish-for-postgresql/babelfish_extensions.git
+cd babelfish_extensions/contrib/babelfishpg_money && make PG_CONFIG=/usr/bin/pg_config && make PG_CONFIG=/usr/bin/pg_config install
+
+# Mocked
+# babelfishpg_common
+# babelfishpg_tds
+# babelfishpg_telemetry
+# babelfishpg_tsql
+
+# rds_activity_stream
+# Mocked
 
 # remove all auxiliary packages to reduce final image size
 cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove wget curl apt-transport-https apt-utils lsb-release bc \
