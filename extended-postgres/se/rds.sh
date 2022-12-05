@@ -88,10 +88,8 @@ PG_BIGM_VERSION="1.2-20200228" \
 # already in the "Generic" image
 
 # pg_partman extension
-if [ "$(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc)" = "1" ]; then \
-  apt-get install -y --no-install-recommends \
-    postgresql-${PG_SERVER_VERSION}-partman
-fi
+apt-get install -y --no-install-recommends \
+  postgresql-${PG_SERVER_VERSION}-partman
 
 # pg_repack extension
 # already in the "Generic" image

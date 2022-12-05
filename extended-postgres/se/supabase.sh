@@ -82,22 +82,11 @@ apt-get install -y --no-install-recommends \
 apt-get install -y --no-install-recommends \
   postgresql-${PG_SERVER_VERSION}-pgrouting
 
-# pg_stat_monitor extension (available for versions 11, 12, 13 and 14)
-if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-   cd /tmp && curl -O https://repo.percona.com/apt/percona-release_latest.generic_all.deb \
-   && apt-get install -y --no-install-recommends \
-      ./percona-release_latest.generic_all.deb \
-   && apt-get update \
-   && percona-release setup ppg${PG_SERVER_VERSION} \
-   && apt-get install -y --no-install-recommends \
-      percona-pg-stat-monitor${PG_SERVER_VERSION};
-fi
+# pg_stat_monitor extension
+# already in the "Generic" image
 
 # rum extension
-if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-   apt-get install -y --no-install-recommends \
-      postgresql-${PG_SERVER_VERSION}-rum;
-fi
+# already in the "Generic" image
 
 # pgtap extension
 apt-get install -y --no-install-recommends \

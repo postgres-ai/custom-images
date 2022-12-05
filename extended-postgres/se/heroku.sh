@@ -15,10 +15,8 @@ apt-get install -y --no-install-recommends \
    postgresql-${PG_SERVER_VERSION}-postgis-${POSTGIS_VERSION}-scripts
 
 # pg_partman extension
-if [ "$(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc)" = "1" ]; then \
-  apt-get install -y --no-install-recommends \
-    postgresql-${PG_SERVER_VERSION}-partman
-fi
+apt-get install -y --no-install-recommends \
+  postgresql-${PG_SERVER_VERSION}-partman
 
 # pgaudit extension
 # already in the "Generic" image
