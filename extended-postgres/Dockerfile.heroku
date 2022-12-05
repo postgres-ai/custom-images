@@ -6,6 +6,20 @@ ARG PG_SERVER_VERSION=14
 ARG BASE_IMAGE_NAME
 ARG BASE_COMMIT_REF
 
+# build-env
+FROM ${BASE_IMAGE_NAME}:${PG_SERVER_VERSION}${BASE_COMMIT_REF} as build-env
+
+ARG PG_SERVER_VERSION
+ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
+
+ARG PGAUDITLOGTOFILE_VERSION
+ENV PGAUDITLOGTOFILE_VERSION=${PGAUDITLOGTOFILE_VERSION:-"1.5.9_2"}
+
+ADD ./extended-postgres/se/heroku-libs.sh /
+RUN chmod +x /heroku-libs.sh 
+RUN /heroku-libs.sh 
+
+
 # Build the extended-postgres image
 FROM ${BASE_IMAGE_NAME}:${PG_SERVER_VERSION}${BASE_COMMIT_REF}
 LABEL maintainer="postgres.ai"
@@ -16,8 +30,9 @@ ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
 ARG POSTGIS_VERSION
 ENV POSTGIS_VERSION=${POSTGIS_VERSION:-3}
 
-ARG PGAUDITLOGTOFILE_VERSION
-ENV PGAUDITLOGTOFILE_VERSION=${PGAUDITLOGTOFILE_VERSION:-"1.5.9_2"}
+# copy PostgreSQL extensions from build-env
+COPY --from=build-env --chown=root:root /usr/share/postgresql/ /usr/share/postgresql/
+COPY --from=build-env --chown=root:root /usr/lib/postgresql/ /usr/lib/postgresql/
 
 ADD ./extended-postgres/se/heroku.sh /
 RUN chmod +x /heroku.sh
