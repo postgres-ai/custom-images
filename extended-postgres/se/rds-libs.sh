@@ -65,10 +65,11 @@ cp plv8-output/extension/plls* /usr/share/postgresql/${PG_SERVER_VERSION}/extens
 cp plv8-output/extension/plcoffee* /usr/share/postgresql/${PG_SERVER_VERSION}/extension/
 
 # babelfish extensions
-# babelfishpg_money
-cd /tmp && git clone --branch BABEL_2_3_STABLE --single-branch https://github.com/babelfish-for-postgresql/babelfish_extensions.git
-cd babelfish_extensions/contrib/babelfishpg_money && make PG_CONFIG=/usr/bin/pg_config && make PG_CONFIG=/usr/bin/pg_config install
-
+# babelfishpg_money (compatible with PostgreSQL 13,14)
+if [ "$(echo "$PG_SERVER_VERSION > 12" | /usr/bin/bc)" = "1" ] && [ "$(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc)" = "1" ]; then \
+  cd /tmp && git clone --branch BABEL_2_3_STABLE --single-branch https://github.com/babelfish-for-postgresql/babelfish_extensions.git
+  cd babelfish_extensions/contrib/babelfishpg_money && make PG_CONFIG=/usr/bin/pg_config && make PG_CONFIG=/usr/bin/pg_config install
+fi
 # Mocked
 # babelfishpg_common
 # babelfishpg_tds
