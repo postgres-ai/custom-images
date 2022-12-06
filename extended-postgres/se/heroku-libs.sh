@@ -9,8 +9,16 @@ apt-get install --no-install-recommends -y apt-transport-https ca-certificates \
    python3 pkg-config clang g++ libc++-dev libc++abi-dev libglib2.0-dev libtinfo5 ninja-build binutils libicu-dev
 
 # pgauditlogtofile extension
+# (build v1.0 from source code for compatibility with PostgreSQL 9.6)
+if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
+cd /tmp && wget --quiet -O /tmp/pgauditlogtofile-1.0.tar.gz \
+  https://github.com/fmbiete/pgauditlogtofile/archive/refs/tags/v1.0.tar.gz \
+  && tar zxf /tmp/pgauditlogtofile-1.0.tar.gz \
+  && cd /tmp/pgauditlogtofile-1.0 && make USE_PGXS=1 && make USE_PGXS=1 install
+else
 cd /tmp && wget --quiet -O /tmp/pgauditlogtofile-${PGAUDITLOGTOFILE_VERSION}.tar.gz \
   https://github.com/fmbiete/pgauditlogtofile/archive/refs/tags/v${PGAUDITLOGTOFILE_VERSION}.tar.gz \
   && tar zxf /tmp/pgauditlogtofile-${PGAUDITLOGTOFILE_VERSION}.tar.gz \
   && cd /tmp/pgauditlogtofile-${PGAUDITLOGTOFILE_VERSION} && make USE_PGXS=1 && make USE_PGXS=1 install
+fi
 
