@@ -43,10 +43,23 @@ if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
      && make && make install;
 fi
 
+# pg_cron extension
+# (build v1.0 from source code for compatibility with PostgreSQL 9.6)
+if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
+  git clone --branch v1.0.2 --single-branch https://github.com/citusdata/pg_cron.git
+  cd pg_cron
+  make && make install
+fi
+
 # pg_auth_mon extension
 if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
-  git clone https://github.com/RafiaSabih/pg_auth_mon.git \
-  && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install;
+  if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
+    git clone --branch v1.0 --single-branch https://github.com/RafiaSabih/pg_auth_mon.git \
+    && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install;
+  else
+    git clone https://github.com/RafiaSabih/pg_auth_mon.git \
+    && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install;
+  fi
 fi
 
 # pg_show_plans extension

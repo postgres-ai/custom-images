@@ -84,9 +84,9 @@ The PostgreSQL 14 image is now missing the following extensions (they will be ad
 | moddatetime        | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | functions for tracking last modification time |
 | moddatetime        | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | 1.0             | functions for tracking last modification time |
 | old_snapshot       |                 |                 |                 |                 |                 | 1.0             | iutilities in support of old_snapshot_threshold |
-| pg_auth_mon        | 1.1             | 1.1             | 1.1             | 1.1             | 1.1             |                 | monitor connection attempts per user |
+| pg_auth_mon        | 1.0             | 1.1             | 1.1             | 1.1             | 1.1             |                 | monitor connection attempts per user |
 | pg_buffercache     | 1.2             | 1.3             | 1.3             | 1.3             | 1.3             | 1.3             | examine the shared buffer cache |
-| pg_cron            | 1.4             | 1.4             | 1.4             | 1.4             | 1.4             | 1.4             | Job scheduler for PostgreSQL |
+| pg_cron            | 1.0             | 1.4             | 1.4             | 1.4             | 1.4             | 1.4             | Job scheduler for PostgreSQL |
 | pg_freespacemap    | 1.1             | 1.2             | 1.2             | 1.2             | 1.2             | 1.2             | examine the free space map (FSM) |
 | pg_hint_plan       | 1.2.7           | 1.3.6           | 1.3.7           | 1.3.7           | 1.3.7           | 1.4             |  makes it possible to tweak PostgreSQL execution plans using so-called "hints" in SQL comments |
 | pg_prewarm         | 1.1             | 1.1             | 1.2             | 1.2             | 1.2             | 1.2             | prewarm relation data |

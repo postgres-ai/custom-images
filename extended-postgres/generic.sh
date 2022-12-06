@@ -50,8 +50,10 @@ wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v${PG
   && rm -rf pg_timetable_${PG_TIMETABLE_VERSION}_Linux_x86_64.deb
 
 # pg_cron extension
-apt-get install --no-install-recommends -y \
-  postgresql-${PG_SERVER_VERSION}-cron
+if [ "$(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc)" = "1" ]; then \
+   apt-get install --no-install-recommends -y \
+   postgresql-${PG_SERVER_VERSION}-cron;
+fi
 
 # pg_stat_monitor extension (available for versions 11, 12, 13 and 14)
 if [ "$(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc)" = "1" ] && [ "$(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc)" = "1" ]; then \
@@ -91,9 +93,9 @@ apt-get install --no-install-recommends -y \
        && chown postgres:postgres /var/lib/postgresql/.ssh
 
 # remove all auxiliary packages to reduce final image size
-cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove \
-       wget curl apt-transport-https apt-utils lsb-release bc \
-apt-get clean -y autoclean \
+apt-get purge -y --auto-remove \
+  wget curl apt-transport-https apt-utils lsb-release bc
+apt-get clean -y autoclean
 rm -rf /var/lib/apt/lists/*
 
 # remove standard pgdata
