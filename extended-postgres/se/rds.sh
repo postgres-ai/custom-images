@@ -48,6 +48,10 @@ apt-get install -y --no-install-recommends \
 apt-get install -y --no-install-recommends \
   postgresql-${PG_SERVER_VERSION}-ip4r
 
+# oracle_fdw requirements
+apt-get install -y --no-install-recommends \
+  libaio1
+
 # oracle_fdw extension
 # copy from build-env
 

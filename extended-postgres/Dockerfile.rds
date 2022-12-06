@@ -47,6 +47,9 @@ COPY extended-postgres/se/mocks/ /usr/share/postgresql/${PG_SERVER_VERSION}/exte
 COPY --from=build-env --chown=root:root /usr/share/postgresql/ /usr/share/postgresql/
 COPY --from=build-env --chown=root:root /usr/lib/postgresql/ /usr/lib/postgresql/
 
+# copy oracle instantclient from build-env
+COPY --from=build-env --chown=root:root /opt/oracle/instantclient/ /opt/oracle/instantclient/
+
 # oracle_fdw variables
 ENV ORACLE_HOME=/opt/oracle/instantclient
 ENV OCI_LIB_DIR=$ORACLE_HOME
@@ -61,6 +64,9 @@ EXPOSE 5432
 
 # Prepare Postgres start script
 RUN echo "#!/bin/bash" > /pg_start.sh && chmod a+x /pg_start.sh \
+    # configure dynamic linker run-time bindings for oracle_fdw
+    && echo "/bin/bash -c \"echo $ORACLE_HOME > /etc/ld.so.conf.d/oracle.conf && ldconfig\"" \
+      >> /pg_start.sh \
     && echo "chown -R postgres:postgres \${PGDATA} /var/run/postgresql" \
       >> /pg_start.sh \
     && printf "sudo -Eu postgres /usr/lib/postgresql/$(echo ${PG_SERVER_VERSION} | sed 's/beta.*//' | sed 's/rc.*//')/bin/postgres -D \${PGDATA} >& /proc/1/fd/1 \n" \
