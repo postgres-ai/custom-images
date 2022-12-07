@@ -41,7 +41,9 @@ git clone https://github.com/iCyberon/pg_hashids.git \
 && cd pg_hashids && USE_PGXS=1 make && USE_PGXS=1 make install
 
 # pgjwt extension
-git clone https://github.com/michelp/pgjwt.git && cd pgjwt && make install
+if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
+  git clone https://github.com/michelp/pgjwt.git && cd pgjwt && make install;
+fi
 
 # pgsodium extension
 # as of version 3.0 pgsodium requires PostgreSQL 14+
@@ -50,9 +52,8 @@ if [ $(echo "$PG_SERVER_VERSION > 13" | /usr/bin/bc) = "1" ]; then \
   && cd pgsodium \
   && make install;
 fi
-
 # use pgsodium 2.0 for earlier versions of PostgreSQL.
-if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
+if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
   git clone --branch v2.0.2 --single-branch https://github.com/michelp/pgsodium.git \
   && cd pgsodium \
   && make install;
