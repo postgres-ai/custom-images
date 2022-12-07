@@ -20,7 +20,7 @@ apt-get clean && rm -rf /var/lib/apt/lists/partial \
 # Mocked
 
 # aws_s3 extension
-# copy from build-env
+# Mocked
 
 # aws_ml extension
 # Mocked
