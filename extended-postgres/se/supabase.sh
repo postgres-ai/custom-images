@@ -10,6 +10,9 @@ apt-get clean && rm -rf /var/lib/apt/lists/partial \
 # pgsodium requirements
 apt-get install --no-install-recommends -y libsodium23
 
+# http requirements
+apt-get install --no-install-recommends -y libcurl4
+
 # libgraphqlparser (required for pg_graphql)
 # copy from build-env
 
