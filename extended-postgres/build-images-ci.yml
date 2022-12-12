@@ -102,7 +102,9 @@ build-generic-postgis-images:
     SE_TYPE: postgis
   trigger:
     include:
-      - local: extended-postgres/se-images-ci.yml
+      - project: postgres-ai/se-images
+        ref: 'master'
+        file: 'extended-postgres/se-images-ci.yml'
     strategy: depend
 
 build-rds-images:
