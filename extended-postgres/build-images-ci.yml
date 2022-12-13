@@ -101,11 +101,7 @@ build-generic-postgis-images:
     - !reference [.only-feature-template, rules]
   variables:
     SE_TYPE: postgis
-  trigger:
-    include:
-      - project: postgres-ai/se-images
-        ref: '463-move-se-images'
-        file: 'extended-postgres/se-images-ci.yml'
+  trigger: postgres-ai/se-images
 #    strategy: depend # DEBUG
 
 build-rds-images:
