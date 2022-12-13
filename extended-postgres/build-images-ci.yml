@@ -103,8 +103,7 @@ build-generic-postgis-images:
     SE_TYPE: postgis
   trigger:
     project: postgres-ai/se-images
-    ref: '463-move-se-images'
-    file: 'extended-postgres/se-images-ci.yml'
+    branch: '463-move-se-images'
     strategy: depend
 #    strategy: depend # DEBUG
 
