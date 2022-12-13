@@ -91,7 +91,7 @@ build-generic-images:
   <<: *only_feature
   trigger:
     include: extended-postgres/generic-ci.yml
-    strategy: depend
+    # strategy: depend # DEBUG
 
 build-generic-postgis-images:
   stage: build-extended-image
@@ -105,7 +105,7 @@ build-generic-postgis-images:
       - project: postgres-ai/se-images
         ref: 'master'
         file: 'extended-postgres/se-images-ci.yml'
-    strategy: depend
+#    strategy: depend # DEBUG
 
 build-rds-images:
   stage: build-extended-image
@@ -119,17 +119,18 @@ build-rds-images:
       - local: extended-postgres/se-images-ci.yml
     strategy: depend
 
-build-supabase-images:
-  stage: build-extended-image
-  rules:
-    - !reference [.only-tag-template, rules]
-    - !reference [.only-feature-template, rules]
-  variables:
-    SE_TYPE: supabase
-  trigger:
-    include:
-      - local: extended-postgres/se-images-ci.yml
-    strategy: depend
+# Debug: don't run these jobs
+#build-supabase-images:
+#  stage: build-extended-image
+#  rules:
+#    - !reference [.only-tag-template, rules]
+#    - !reference [.only-feature-template, rules]
+#  variables:
+#    SE_TYPE: supabase
+#  trigger:
+#    include:
+#      - local: extended-postgres/se-images-ci.yml
+#    strategy: depend
 
 build-timescale-cloud-images:
   stage: build-extended-image
