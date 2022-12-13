@@ -101,7 +101,8 @@ build-generic-postgis-images:
     - !reference [.only-feature-template, rules]
   variables:
     SE_TYPE: postgis
-  trigger: postgres-ai/se-images
+  trigger:
+    project: postgres-ai/se-images
 #    strategy: depend # DEBUG
 
 build-rds-images:
