@@ -23,6 +23,7 @@ stages:
       - branches
     variables:
       - $CI_COMMIT_REF_SLUG != "master"
+    when: manual # DEBUG
 
 build-generic-postgres-9-6-image-feature:
   <<: *build_image_definition_gl
