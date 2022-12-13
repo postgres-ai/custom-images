@@ -86,7 +86,8 @@ build-generic-postgres-15-image-latest:
     PG_SERVER_VERSION: "15"
     TAGS: "${DOCKER_NAME}:${PG_SERVER_VERSION},${DOCKER_NAME}:${PG_SERVER_VERSION}-${CI_COMMIT_TAG}"
 
-build-generic-images:
+# Debug
+.build-generic-images:
   stage: build-image
   <<: *only_feature
   trigger:
