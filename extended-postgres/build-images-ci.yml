@@ -94,17 +94,16 @@ build-generic-postgres-15-image-latest:
     include: extended-postgres/generic-ci.yml
     # strategy: depend # DEBUG
 
-build-generic-postgis-images:
+build-se-images:
   stage: build-extended-image
   rules:
     - !reference [.only-tag-template, rules]
     - !reference [.only-feature-template, rules]
   variables:
-    SE_TYPE: postgis
+    BASE_COMMIT_REF: $CI_COMMIT_REF_SLUG
   trigger:
     project: postgres-ai/se-images
     branch: '463-move-se-images'
-    strategy: depend
 #    strategy: depend # DEBUG
 
 build-rds-images:
