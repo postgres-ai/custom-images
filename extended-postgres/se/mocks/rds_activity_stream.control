@@ -1,4 +1,0 @@
-comment = 'rds_activity_stream mock'
-default_version = '1.5'
-module_pathname = '$libdir/rds_activity_stream'
-relocatable = false

@@ -1,4 +1,0 @@
-comment = 'AWS S3 extension for importing data from S3 mock'
-default_version = '1.1'
-module_pathname = '$libdir/aws_s3'
-relocatable = true

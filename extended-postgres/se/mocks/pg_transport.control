@@ -1,4 +1,0 @@
-comment = 'pg_transport mock'
-default_version = '1.0'
-module_pathname = '$libdir/pg_transport'
-relocatable = false

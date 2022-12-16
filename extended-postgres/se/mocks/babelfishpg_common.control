@@ -1,4 +1,0 @@
-comment = 'babelfishpg_common mock'
-default_version = '2.3'
-module_pathname = '$libdir/babelfishpg_common'
-relocatable = false
