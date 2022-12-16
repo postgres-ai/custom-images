@@ -110,7 +110,7 @@ build-se-images-release:
   rules:
     - !reference [.only-tag-template, rules]
   variables:
-    COMMIT_TAG: 0.0.0 #$CI_COMMIT_TAG
+    COMMIT_TAG: $CI_COMMIT_TAG
   trigger:
     project: postgres-ai/se-images
     branch: '463-move-se-images'
