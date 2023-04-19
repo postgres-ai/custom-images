@@ -2,16 +2,18 @@
 # If you are using "physical" mode, please check the glibc version in your production database system to avoid potential index corruption.
 # You should have the same version of glibc as in your Docker image.
 
-ARG PG_SERVER_VERSION=14
+ARG PG_SERVER_VERSION=15
 
 # build-env
 FROM postgres:${PG_SERVER_VERSION}-bullseye as build-env
 
-ARG WALG_VERSION
-ENV WALG_VERSION=${WALG_VERSION:-2.0.0}
+ARG TARGETPLATFORM
 
 ARG GO_VERSION
-ENV GO_VERSION=${GO_VERSION:-1.18.4}
+ENV GO_VERSION=${GO_VERSION:-1.20.3}
+
+ARG WALG_VERSION
+ENV WALG_VERSION=${WALG_VERSION:-2.0.1}
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # install dependencies
@@ -20,13 +22,15 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        wget curl sudo git make cmake gcc build-essential \
        libbrotli-dev liblzo2-dev libsodium-dev \
     # install Go
-    && cd /tmp && wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz \
-    && rm -rf /usr/local/go && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
-    && export PATH=$PATH:/usr/local/go/bin \
+    && cd /tmp && GO_ARCH=$(if [ -z "${TARGETPLATFORM}" ]; then echo "amd64"; else echo ${TARGETPLATFORM} | cut -d '/' -f2; fi) \
+      && export PATH=$PATH:/usr/local/go/bin && wget https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz \
+      && rm -rf /usr/local/go && tar -C /usr/local -xzf go${GO_VERSION}.linux-${GO_ARCH}.tar.gz \
+      && export PATH=$PATH:/usr/local/go/bin \
     # build WAL-G
-    && git clone --branch v${WALG_VERSION} --single-branch https://github.com/wal-g/wal-g.git \
-    && cd wal-g && export USE_LIBSODIUM=1 && export USE_LZO=1 \
-    && make deps && GOBIN=/usr/local/bin make pg_install
+    && cd /tmp && git clone --branch v${WALG_VERSION} --single-branch https://github.com/wal-g/wal-g.git \
+      && cd wal-g && export USE_LIBSODIUM=1 && export USE_LZO=1 \
+      && make deps && GOBIN=/usr/local/bin make pg_install
+
 
 # Build the extended image
 FROM postgres:${PG_SERVER_VERSION}-bullseye
@@ -35,10 +39,16 @@ LABEL maintainer="postgres.ai"
 COPY --from=build-env /usr/local/bin/wal-g /usr/local/bin/wal-g
 
 ARG PG_SERVER_VERSION
-ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-14}
+ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-15}
 
 ARG PG_TIMETABLE_VERSION
-ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-4.9.0}
+ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.3.0}
+ARG SET_USER_VERSION
+ENV SET_USER_VERSION=${SET_USER_VERSION:-REL4_0_1}
+ARG LOGERRORS_VERSION
+ENV LOGERRORS_VERSION=${LOGERRORS_VERSION:-2.1.2}
+ARG PGVECTOR_VERSION
+ENV PGVECTOR_VERSION=${PGVECTOR_VERSION:-0.4.1}
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # remove the "beta" and "rc" suffix in the PG_SERVER_VERSION variable (if exists)
@@ -47,54 +57,35 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && apt-get install --no-install-recommends -y wget make gcc unzip sudo git \
        curl libc6-dev apt-transport-https ca-certificates pgxnclient bc \
        build-essential libssl-dev krb5-multidev libkrb5-dev lsb-release apt-utils \
-    && apt-get install --no-install-recommends -y \
-       postgresql-server-dev-${PG_SERVER_VERSION} \
+    && apt-get install --no-install-recommends -y postgresql-server-dev-${PG_SERVER_VERSION} \
     # plpython3 (procedural language implementation for Python 3.x)
-    && apt-get install --no-install-recommends -y \
-       postgresql-plpython3-${PG_SERVER_VERSION} \
+    && apt-get install --no-install-recommends -y postgresql-plpython3-${PG_SERVER_VERSION} \
     # amcheck extension; not included in contrib for Postgres 9.6
     && if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
-       apt-get install --no-install-recommends -y \
-       postgresql-9.6-amcheck; \
+         apt-get install --no-install-recommends -y postgresql-9.6-amcheck; \
        fi \
     # pg_repack extension
-    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-         apt-get install --no-install-recommends -y \
-         postgresql-${PG_SERVER_VERSION}-repack; \
-       fi \
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-repack \
     # hypopg extension
     && apt-get install --no-install-recommends -y \
-         postgresql-${PG_SERVER_VERSION}-hypopg \
-         postgresql-${PG_SERVER_VERSION}-hypopg-dbgsym \
+       postgresql-${PG_SERVER_VERSION}-hypopg \
+       postgresql-${PG_SERVER_VERSION}-hypopg-dbgsym \
     # pgaudit extension
-    && apt-get install --no-install-recommends -y \
-         postgresql-${PG_SERVER_VERSION}-pgaudit \
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pgaudit \
     # pg_hint_plan extension
-    && if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
-         export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
-         && wget --quiet -O /tmp/pg_hint_plan.zip \
-           https://github.com/ossc-db/pg_hint_plan/archive/PG${PG_PLAN_HINT_VERSION}.zip \
-         && unzip /tmp/pg_hint_plan.zip -d /tmp \
-           && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
-           && make && make install; \
-        # there is no branch "PG14", use the tag "REL14_1_4_0"
-        elif [ "${PG_SERVER_VERSION}" = "14" ]; then \
-           wget --quiet -O /tmp/pg_hint_plan.zip \
-           https://github.com/ossc-db/pg_hint_plan/archive/REL14_1_4_0.zip \
-         && unzip /tmp/pg_hint_plan.zip -d /tmp \
-           && cd /tmp/pg_hint_plan-REL14_1_4_0 \
-           && make && make install; \
-        fi \
+    && export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
+       && wget --quiet -O /tmp/pg_hint_plan.zip \
+         https://github.com/ossc-db/pg_hint_plan/archive/PG${PG_PLAN_HINT_VERSION}.zip \
+       && unzip /tmp/pg_hint_plan.zip -d /tmp \
+       && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
+       && make && make install \
     # powa extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-${PG_SERVER_VERSION}-powa \
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-powa \
     # pg_auth_mon extension
-    && if [ $(echo "$PG_SERVER_VERSION < 14" | /usr/bin/bc) = "1" ]; then \
-         git clone https://github.com/RafiaSabih/pg_auth_mon.git \
-         && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install; \
-       fi \
+    && cd /tmp && git clone https://github.com/RafiaSabih/pg_auth_mon.git \
+       && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install \
     # timescaledb extension
-    && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
+    && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ]; then \
          echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/timescaledb.list \
            && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
            && apt-get update \
@@ -109,68 +100,59 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          elif [ "${PG_SERVER_VERSION}" = "14" ]; then CITUS_VERSION="11.1"; \
          elif [ "${PG_SERVER_VERSION}" = "15" ]; then CITUS_VERSION="11.1"; \
          fi \
-        && curl -s https://install.citusdata.com/community/deb.sh | bash \
-        && apt-get install --no-install-recommends -y \
-         postgresql-"${PG_SERVER_VERSION}"-citus-"${CITUS_VERSION}"; \
+         && curl -s https://install.citusdata.com/community/deb.sh | bash \
+         && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-citus-"${CITUS_VERSION}"; \
        fi \
     # hll extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-"${PG_SERVER_VERSION}"-hll \
+    && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-hll \
     # topn extension
     && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
          curl -s https://install.citusdata.com/community/deb.sh | bash \
-         && apt-get install --no-install-recommends -y \
-            postgresql-"${PG_SERVER_VERSION}"-topn; \
+         && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-topn; \
        fi \
     # pg_timetable extension
     && wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v${PG_TIMETABLE_VERSION}/pg_timetable_${PG_TIMETABLE_VERSION}_Linux_x86_64.deb \
       && dpkg -i pg_timetable_${PG_TIMETABLE_VERSION}_Linux_x86_64.deb \
       && rm -rf pg_timetable_${PG_TIMETABLE_VERSION}_Linux_x86_64.deb \
     # pg_show_plans extension
-    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-         git clone https://github.com/cybertec-postgresql/pg_show_plans.git \
+    && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ]; then \
+         cd /tmp && git clone https://github.com/cybertec-postgresql/pg_show_plans.git \
          && cd pg_show_plans \
-         && export USE_PGXS=1 && make && make install && cd .. && rm -rf pg_show_plans; \
+         && export USE_PGXS=1 && make && make install; \
        fi \
     # pg_cron extension
-    && if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-         apt-get install --no-install-recommends -y \
-         postgresql-${PG_SERVER_VERSION}-cron; \
-       fi \
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-cron \
     # postgresql_anonymizer extension
     && pgxn install ddlx && pgxn install postgresql_anonymizer \
     # pg_stat_kcache extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
     # pg_wait_sampling extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-${PG_SERVER_VERSION}-pg-wait-sampling \
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-wait-sampling \
     # pg_qualstats extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-${PG_SERVER_VERSION}-pg-qualstats \
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-qualstats \
     # bg_mon extension
     && apt-get install -y libevent-dev libbrotli-dev \
       && git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon \
       && USE_PGXS=1 make && USE_PGXS=1 make install && cd .. \
     # pgextwlist extension
-    && apt-get install --no-install-recommends -y \
-       postgresql-${PG_SERVER_VERSION}-pgextwlist \
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pgextwlist \
     # set_user extension
     && git clone https://github.com/pgaudit/set_user.git \
-      && cd set_user && git checkout REL3_0_0 && make USE_PGXS=1 && make USE_PGXS=1 install \
+      && cd set_user && git checkout ${SET_USER_VERSION} && make USE_PGXS=1 && make USE_PGXS=1 install \
     # logerrors extension
     && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
-         # build logerrors v2.0
-         if [ $(echo "$PG_SERVER_VERSION < 15" | /usr/bin/bc) = "1" ]; then \
-           cd /tmp && wget https://github.com/munakoiso/logerrors/archive/v2.0.tar.gz \
-           && tar -xf v2.0.tar.gz && rm v2.0.tar.gz && cd logerrors-2.0 \
-           && USE_PGXS=1 make && USE_PGXS=1 make install; \
-         # build logerrors from the master branch for PostgreSQL 15
-         elif [ "${PG_SERVER_VERSION}" = "15" ]; then \
-           cd /tmp && git clone https://github.com/munakoiso/logerrors.git \
-           && cd logerrors \
-           && USE_PGXS=1 make && USE_PGXS=1 make install; \
-         fi \
+         cd /tmp && wget -O logerrors.tar.gz https://github.com/munakoiso/logerrors/archive/v${LOGERRORS_VERSION}.tar.gz \
+         && tar -xf logerrors.tar.gz && rm logerrors.tar.gz && cd logerrors-${LOGERRORS_VERSION} \
+         && USE_PGXS=1 make && USE_PGXS=1 make install; \
+       fi \
+    # pgvector extension
+    && if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ]; then \
+         cd /tmp && git clone --branch v${PGVECTOR_VERSION} https://github.com/pgvector/pgvector.git \
+         && cd pgvector && make OPTFLAGS="" install \
+         && mkdir /usr/share/doc/pgvector \
+         && cp LICENSE README.md /usr/share/doc/pgvector \
+         # it seems, v0.4.1 has incomplete setup process – we need to copy .sql manually
+         && cp sql/vector.sql /usr/share/postgresql/${PG_SERVER_VERSION}/extension/vector--${PGVECTOR_VERSION}.sql; \
        fi \
     # pgBackRest
     && apt-get install --no-install-recommends -y \
@@ -186,7 +168,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && apt-get clean -y autoclean \
     && rm -rf /var/lib/apt/lists/* \
     # remove standard pgdata
-    && rm -rf /var/lib/postgresql/${PG_SERVER_VERSION}/
+    && rm -rf /var/lib/postgresql/${PG_SERVER_VERSION}/ 
 
 EXPOSE 5432
 
