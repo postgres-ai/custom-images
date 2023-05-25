@@ -82,8 +82,15 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # powa extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-powa \
     # pg_auth_mon extension
-    && cd /tmp && git clone https://github.com/RafiaSabih/pg_auth_mon.git \
-       && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install \
+    && if [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+        if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
+          cd /tmp && git clone --branch v1.0 --single-branch https://github.com/RafiaSabih/pg_auth_mon.git \
+          && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install; \
+        elif [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ]; then \
+          cd /tmp && git clone --branch v2.0 --single-branch https://github.com/RafiaSabih/pg_auth_mon.git \
+          && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install; \
+        fi \
+      fi \
     # timescaledb extension
     && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ]; then \
          echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/timescaledb.list \
@@ -132,12 +139,12 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-qualstats \
     # bg_mon extension
     && apt-get install -y libevent-dev libbrotli-dev \
-      && git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon \
+      && cd /tmp && git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon \
       && USE_PGXS=1 make && USE_PGXS=1 make install && cd .. \
     # pgextwlist extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pgextwlist \
     # set_user extension
-    && git clone https://github.com/pgaudit/set_user.git \
+    && cd /tmp && git clone https://github.com/pgaudit/set_user.git \
       && cd set_user && git checkout ${SET_USER_VERSION} && make USE_PGXS=1 && make USE_PGXS=1 install \
     # logerrors extension
     && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
