@@ -49,6 +49,9 @@ ARG LOGERRORS_VERSION
 ENV LOGERRORS_VERSION=${LOGERRORS_VERSION:-2.1.2}
 ARG PGVECTOR_VERSION
 ENV PGVECTOR_VERSION=${PGVECTOR_VERSION:-0.4.1}
+ARG PG_CRON_VERSION
+ENV PG_CRON_VERSION=${PG_CRON_VERSION:-1.4.2}
+
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # remove the "beta" and "rc" suffix in the PG_SERVER_VERSION variable (if exists)
@@ -128,7 +131,13 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          && export USE_PGXS=1 && make && make install; \
        fi \
     # pg_cron extension
-    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-cron \
+    && if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
+         apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-cron; \
+       elif [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
+         cd /tmp && git clone --branch v${PG_CRON_VERSION} --single-branch https://github.com/citusdata/pg_cron.git \
+           && cd pg_cron \
+           && make && make install; \
+       fi \
     # postgresql_anonymizer extension
     && pgxn install ddlx && pgxn install postgresql_anonymizer \
     # pg_stat_kcache extension
