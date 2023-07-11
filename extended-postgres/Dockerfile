@@ -41,6 +41,12 @@ COPY --from=build-env /usr/local/bin/wal-g /usr/local/bin/wal-g
 ARG PG_SERVER_VERSION
 ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-15}
 
+ARG PG_UNIX_SOCKET_DIR
+ENV PG_UNIX_SOCKET_DIR=${PG_UNIX_SOCKET_DIR:-"/var/run/postgresql"}
+
+ARG PG_SERVER_PORT
+ENV PG_SERVER_PORT=${PG_SERVER_PORT:-5432}
+
 ARG PG_TIMETABLE_VERSION
 ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.3.0}
 ARG SET_USER_VERSION
@@ -184,15 +190,15 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && apt-get clean -y autoclean \
     && rm -rf /var/lib/apt/lists/* \
     # remove standard pgdata
-    && rm -rf /var/lib/postgresql/${PG_SERVER_VERSION}/ 
+    && rm -rf /var/lib/postgresql/${PG_SERVER_VERSION}/
 
-EXPOSE 5432
+EXPOSE ${PG_SERVER_PORT}
 
 # Prepare Postgres start script
 RUN echo "#!/bin/bash" > /pg_start.sh && chmod a+x /pg_start.sh \
-    && echo "chown -R postgres:postgres \${PGDATA} /var/run/postgresql" \
+    && echo "chown -R postgres:postgres \${PGDATA} \${PG_UNIX_SOCKET_DIR}" \
       >> /pg_start.sh \
-    && printf "sudo -Eu postgres /usr/lib/postgresql/$(echo ${PG_SERVER_VERSION} | sed 's/beta.*//' | sed 's/rc.*//')/bin/postgres -D \${PGDATA} >& /proc/1/fd/1 \n" \
+    && printf "sudo -Eu postgres /usr/lib/postgresql/$(echo ${PG_SERVER_VERSION} | sed 's/beta.*//' | sed 's/rc.*//')/bin/postgres -D \${PGDATA} -k \${PG_UNIX_SOCKET_DIR}  -p \${PG_SERVER_PORT} >& /proc/1/fd/1 \n" \
       >> /pg_start.sh \
     # Infinite sleep to allow restarting Postgres
     && echo "/bin/bash -c \"trap : TERM INT; sleep infinity & wait\"" \
