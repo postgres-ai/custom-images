@@ -48,13 +48,14 @@ ARG PG_SERVER_PORT
 ENV PG_SERVER_PORT=${PG_SERVER_PORT:-5432}
 
 ARG PG_TIMETABLE_VERSION
-ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.3.0}
+ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.5.0}
 ARG SET_USER_VERSION
 ENV SET_USER_VERSION=${SET_USER_VERSION:-REL4_0_1}
 ARG LOGERRORS_VERSION
 ENV LOGERRORS_VERSION=${LOGERRORS_VERSION:-2.1.2}
 ARG PGVECTOR_VERSION
-ENV PGVECTOR_VERSION=${PGVECTOR_VERSION:-0.4.1}
+ENV PGVECTOR_VERSION=${PGVECTOR_VERSION:-0.5.0}
+# https://gitlab.com/postgres-ai/custom-images/-/merge_requests/56
 ARG PG_CRON_VERSION
 ENV PG_CRON_VERSION=${PG_CRON_VERSION:-1.4.2}
 
@@ -82,14 +83,18 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # pgaudit extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pgaudit \
     # pg_hint_plan extension
-    && export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
-       && wget --quiet -O /tmp/pg_hint_plan.zip \
-         https://github.com/ossc-db/pg_hint_plan/archive/PG${PG_PLAN_HINT_VERSION}.zip \
-       && unzip /tmp/pg_hint_plan.zip -d /tmp \
-       && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
-       && make && make install \
+    && if [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+         export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
+         && wget --quiet -O /tmp/pg_hint_plan.zip \
+           https://github.com/ossc-db/pg_hint_plan/archive/PG${PG_PLAN_HINT_VERSION}.zip \
+         && unzip /tmp/pg_hint_plan.zip -d /tmp \
+         && cd /tmp/pg_hint_plan-PG${PG_PLAN_HINT_VERSION} \
+         && make && make install; \
+       fi \
     # powa extension
-    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-powa \
+    && if [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+         apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-powa; \
+       fi \
     # pg_auth_mon extension
     && if [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
         if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
@@ -101,7 +106,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
         fi \
       fi \
     # timescaledb extension
-    && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ]; then \
+    && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
          echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/timescaledb.list \
            && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
            && apt-get update \
@@ -109,12 +114,12 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
               timescaledb-2-postgresql-${PG_SERVER_VERSION}; \
        fi \
     # citus extension
-    && if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ]; then \
+    && if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
          if [ "${PG_SERVER_VERSION}" = "11" ]; then CITUS_VERSION="10.0"; \
          elif [ "${PG_SERVER_VERSION}" = "12" ]; then CITUS_VERSION="10.2"; \
-         elif [ "${PG_SERVER_VERSION}" = "13" ]; then CITUS_VERSION="11.1"; \
-         elif [ "${PG_SERVER_VERSION}" = "14" ]; then CITUS_VERSION="11.1"; \
-         elif [ "${PG_SERVER_VERSION}" = "15" ]; then CITUS_VERSION="11.1"; \
+         elif [ "${PG_SERVER_VERSION}" = "13" ]; then CITUS_VERSION="11.3"; \
+         elif [ "${PG_SERVER_VERSION}" = "14" ]; then CITUS_VERSION="12.0"; \
+         elif [ "${PG_SERVER_VERSION}" = "15" ]; then CITUS_VERSION="12.0"; \
          fi \
          && curl -s https://install.citusdata.com/community/deb.sh | bash \
          && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-citus-"${CITUS_VERSION}"; \
@@ -137,19 +142,21 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          && export USE_PGXS=1 && make && make install; \
        fi \
     # pg_cron extension
-    && if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
-         apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-cron; \
-       elif [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
-         cd /tmp && git clone --branch v${PG_CRON_VERSION} --single-branch https://github.com/citusdata/pg_cron.git \
-           && cd pg_cron \
-           && make && make install; \
+    && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+        cd /tmp && git clone --branch v${PG_CRON_VERSION} --single-branch https://github.com/citusdata/pg_cron.git \
+          && cd pg_cron \
+          && make && make install; \
+        elif [ "${PG_SERVER_VERSION}" = "9.6" ] || [ "$PG_SERVER_VERSION" = "16" ]; then \
+          apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-cron; \
        fi \
     # postgresql_anonymizer extension
     && pgxn install ddlx && pgxn install postgresql_anonymizer \
     # pg_stat_kcache extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
     # pg_wait_sampling extension
-    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-wait-sampling \
+    && if [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+         apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-wait-sampling; \
+       fi \
     # pg_qualstats extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-qualstats \
     # bg_mon extension
@@ -159,8 +166,10 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # pgextwlist extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pgextwlist \
     # set_user extension
-    && cd /tmp && git clone https://github.com/pgaudit/set_user.git \
-      && cd set_user && git checkout ${SET_USER_VERSION} && make USE_PGXS=1 && make USE_PGXS=1 install \
+    && if [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+         cd /tmp && git clone https://github.com/pgaudit/set_user.git \
+         && cd set_user && git checkout ${SET_USER_VERSION} && make USE_PGXS=1 && make USE_PGXS=1 install; \
+       fi \
     # logerrors extension
     && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
          cd /tmp && wget -O logerrors.tar.gz https://github.com/munakoiso/logerrors/archive/v${LOGERRORS_VERSION}.tar.gz \
