@@ -83,7 +83,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # pgaudit extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pgaudit \
     # pg_hint_plan extension
-    && if [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+    && if [ $(echo "$PG_SERVER_VERSION < 17" | /usr/bin/bc) = "1" ]; then \
          export PG_PLAN_HINT_VERSION=$(echo $PG_SERVER_VERSION | sed 's/\.//') \
          && wget --quiet -O /tmp/pg_hint_plan.zip \
            https://github.com/ossc-db/pg_hint_plan/archive/PG${PG_PLAN_HINT_VERSION}.zip \
