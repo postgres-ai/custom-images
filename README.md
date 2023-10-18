@@ -37,12 +37,8 @@ Available PostgreSQL versions: 9.6 (EOL), 10 (EOL), 11, 12, 13, 14, 15, 16. Exte
 
 #### Not included in the PostgreSQL 16 image (yet)
 The PostgreSQL 16 image is now missing the following extensions (they will be added in the future):
-- pg_show_plans
 - pg_auth_mon
 - timescaledb
-- citus
-- powa
-- pg_wait_sampling
 - set_user
 
 ### How to extend

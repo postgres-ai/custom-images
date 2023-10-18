@@ -92,7 +92,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          && make && make install; \
        fi \
     # powa extension
-    && if [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+    && if [ $(echo "$PG_SERVER_VERSION < 17" | /usr/bin/bc) = "1" ]; then \
          apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-powa; \
        fi \
     # pg_auth_mon extension
@@ -114,12 +114,13 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
               timescaledb-2-postgresql-${PG_SERVER_VERSION}; \
        fi \
     # citus extension
-    && if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+    && if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 17" | /usr/bin/bc) = "1" ]; then \
          if [ "${PG_SERVER_VERSION}" = "11" ]; then CITUS_VERSION="10.0"; \
          elif [ "${PG_SERVER_VERSION}" = "12" ]; then CITUS_VERSION="10.2"; \
          elif [ "${PG_SERVER_VERSION}" = "13" ]; then CITUS_VERSION="11.3"; \
-         elif [ "${PG_SERVER_VERSION}" = "14" ]; then CITUS_VERSION="12.0"; \
-         elif [ "${PG_SERVER_VERSION}" = "15" ]; then CITUS_VERSION="12.0"; \
+         elif [ "${PG_SERVER_VERSION}" = "14" ]; then CITUS_VERSION="12.1"; \
+         elif [ "${PG_SERVER_VERSION}" = "15" ]; then CITUS_VERSION="12.1"; \
+         elif [ "${PG_SERVER_VERSION}" = "16" ]; then CITUS_VERSION="12.1"; \
          fi \
          && curl -s https://install.citusdata.com/community/deb.sh | bash \
          && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-citus-"${CITUS_VERSION}"; \
@@ -154,7 +155,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # pg_stat_kcache extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
     # pg_wait_sampling extension
-    && if [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+    && if [ $(echo "$PG_SERVER_VERSION < 17" | /usr/bin/bc) = "1" ]; then \
          apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-wait-sampling; \
        fi \
     # pg_qualstats extension
