@@ -10,7 +10,7 @@ FROM postgres:${PG_SERVER_VERSION}-bullseye as build-env
 ARG TARGETPLATFORM
 
 ARG GO_VERSION
-ENV GO_VERSION=${GO_VERSION:-1.20.3}
+ENV GO_VERSION=${GO_VERSION:-1.21.7}
 
 ARG WALG_VERSION
 ENV WALG_VERSION=${WALG_VERSION:-2.0.1}
@@ -48,13 +48,13 @@ ARG PG_SERVER_PORT
 ENV PG_SERVER_PORT=${PG_SERVER_PORT:-5432}
 
 ARG PG_TIMETABLE_VERSION
-ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.5.0}
+ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.8.0}
 ARG SET_USER_VERSION
 ENV SET_USER_VERSION=${SET_USER_VERSION:-REL4_0_1}
 ARG LOGERRORS_VERSION
 ENV LOGERRORS_VERSION=${LOGERRORS_VERSION:-2.1.2}
 ARG PGVECTOR_VERSION
-ENV PGVECTOR_VERSION=${PGVECTOR_VERSION:-0.5.0}
+ENV PGVECTOR_VERSION=${PGVECTOR_VERSION:-0.6.0}
 # https://gitlab.com/postgres-ai/custom-images/-/merge_requests/56
 ARG PG_CRON_VERSION
 ENV PG_CRON_VERSION=${PG_CRON_VERSION:-1.4.2}
@@ -133,9 +133,9 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-topn; \
        fi \
     # pg_timetable extension
-    && wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v${PG_TIMETABLE_VERSION}/pg_timetable_${PG_TIMETABLE_VERSION}_Linux_x86_64.deb \
-      && dpkg -i pg_timetable_${PG_TIMETABLE_VERSION}_Linux_x86_64.deb \
-      && rm -rf pg_timetable_${PG_TIMETABLE_VERSION}_Linux_x86_64.deb \
+    && wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v"${PG_TIMETABLE_VERSION}"/pg_timetable_Linux_x86_64.deb \
+      && dpkg -i pg_timetable_Linux_x86_64.deb \
+      && rm -rf pg_timetable_Linux_x86_64.deb \
     # pg_show_plans extension
     && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ]; then \
          cd /tmp && git clone https://github.com/cybertec-postgresql/pg_show_plans.git \
@@ -178,14 +178,19 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          && USE_PGXS=1 make && USE_PGXS=1 make install; \
        fi \
     # pgvector extension
-    && if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ]; then \
-         cd /tmp && git clone --branch v${PGVECTOR_VERSION} https://github.com/pgvector/pgvector.git \
-         && cd pgvector && make OPTFLAGS="" install \
-         && mkdir /usr/share/doc/pgvector \
-         && cp LICENSE README.md /usr/share/doc/pgvector \
-         # it seems, v0.4.1 has incomplete setup process – we need to copy .sql manually
-         && cp sql/vector.sql /usr/share/postgresql/${PG_SERVER_VERSION}/extension/vector--${PGVECTOR_VERSION}.sql; \
-       fi \
+    && if [ $(echo "$PG_SERVER_VERSION >= 12" | /usr/bin/bc) = "1" ]; then \
+        cd /tmp && git clone --branch v${PGVECTOR_VERSION} https://github.com/pgvector/pgvector.git \
+        && cd pgvector && make OPTFLAGS="" install \
+        && mkdir /usr/share/doc/pgvector \
+        && cp LICENSE README.md /usr/share/doc/pgvector \
+        && cp sql/vector.sql /usr/share/postgresql/${PG_SERVER_VERSION}/extension/vector--${PGVECTOR_VERSION}.sql; \
+      elif [ $(echo "$PG_SERVER_VERSION == 11" | /usr/bin/bc) = "1" ]; then \
+        cd /tmp && git clone --branch v0.5.1 https://github.com/pgvector/pgvector.git \
+        && cd pgvector && make OPTFLAGS="" install \
+        && mkdir /usr/share/doc/pgvector \
+        && cp LICENSE README.md /usr/share/doc/pgvector \
+        && cp sql/vector.sql /usr/share/postgresql/11/extension/vector--0.5.1.sql; \
+      fi \
     # pgBackRest
     && apt-get install --no-install-recommends -y \
        pgbackrest zstd openssh-client \
