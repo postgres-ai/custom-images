@@ -10,10 +10,10 @@ FROM postgres:${PG_SERVER_VERSION}-bullseye as build-env
 ARG TARGETPLATFORM
 
 ARG GO_VERSION
-ENV GO_VERSION=${GO_VERSION:-1.21.7}
+ENV GO_VERSION=${GO_VERSION:-1.22.5}
 
 ARG WALG_VERSION
-ENV WALG_VERSION=${WALG_VERSION:-2.0.1}
+ENV WALG_VERSION=${WALG_VERSION:-3.0.2}
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # install dependencies
@@ -29,6 +29,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # build WAL-G
     && cd /tmp && git clone --branch v${WALG_VERSION} --single-branch https://github.com/wal-g/wal-g.git \
       && cd wal-g && export USE_LIBSODIUM=1 && export USE_LZO=1 \
+      && go mod tidy \
       && make deps && GOBIN=/usr/local/bin make pg_install
 
 
@@ -48,13 +49,13 @@ ARG PG_SERVER_PORT
 ENV PG_SERVER_PORT=${PG_SERVER_PORT:-5432}
 
 ARG PG_TIMETABLE_VERSION
-ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.8.0}
+ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.9.0}
 ARG SET_USER_VERSION
 ENV SET_USER_VERSION=${SET_USER_VERSION:-REL4_0_1}
 ARG LOGERRORS_VERSION
 ENV LOGERRORS_VERSION=${LOGERRORS_VERSION:-2.1.2}
 ARG PGVECTOR_VERSION
-ENV PGVECTOR_VERSION=${PGVECTOR_VERSION:-0.6.0}
+ENV PGVECTOR_VERSION=${PGVECTOR_VERSION:-0.7.2}
 # https://gitlab.com/postgres-ai/custom-images/-/merge_requests/56
 ARG PG_CRON_VERSION
 ENV PG_CRON_VERSION=${PG_CRON_VERSION:-1.4.2}
@@ -151,7 +152,9 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
           apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-cron; \
        fi \
     # postgresql_anonymizer extension
-    && pgxn install ddlx && pgxn install postgresql_anonymizer \
+    && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
+         pgxn install ddlx && pgxn install postgresql_anonymizer; \
+       fi \
     # pg_stat_kcache extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
     # pg_wait_sampling extension
