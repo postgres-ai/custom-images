@@ -2,45 +2,14 @@
 # If you are using "physical" mode, please check the glibc version in your production database system to avoid potential index corruption.
 # You should have the same version of glibc as in your Docker image.
 
-ARG PG_SERVER_VERSION=15
-
-# build-env
-FROM postgres:${PG_SERVER_VERSION}-bullseye as build-env
-
-ARG TARGETPLATFORM
-
-ARG GO_VERSION
-ENV GO_VERSION=${GO_VERSION:-1.22.5}
-
-ARG WALG_VERSION
-ENV WALG_VERSION=${WALG_VERSION:-3.0.2}
-
-RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
-    # install dependencies
-    && apt-get update -o Acquire::CompressionTypes::Order::=gz \
-    && apt-get install --no-install-recommends -y apt-transport-https ca-certificates \
-       wget curl sudo git make cmake gcc build-essential \
-       libbrotli-dev liblzo2-dev libsodium-dev \
-    # install Go
-    && cd /tmp && GO_ARCH=$(if [ -z "${TARGETPLATFORM}" ]; then echo "amd64"; else echo ${TARGETPLATFORM} | cut -d '/' -f2; fi) \
-      && export PATH=$PATH:/usr/local/go/bin && wget https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz \
-      && rm -rf /usr/local/go && tar -C /usr/local -xzf go${GO_VERSION}.linux-${GO_ARCH}.tar.gz \
-      && export PATH=$PATH:/usr/local/go/bin \
-    # build WAL-G
-    && cd /tmp && git clone --branch v${WALG_VERSION} --single-branch https://github.com/wal-g/wal-g.git \
-      && cd wal-g && export USE_LIBSODIUM=1 && export USE_LZO=1 \
-      && go mod tidy \
-      && make deps && GOBIN=/usr/local/bin make pg_install
-
+ARG PG_SERVER_VERSION=16
 
 # Build the extended image
 FROM postgres:${PG_SERVER_VERSION}-bullseye
 LABEL maintainer="postgres.ai"
 
-COPY --from=build-env /usr/local/bin/wal-g /usr/local/bin/wal-g
-
 ARG PG_SERVER_VERSION
-ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-15}
+ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-16}
 
 ARG PG_UNIX_SOCKET_DIR
 ENV PG_UNIX_SOCKET_DIR=${PG_UNIX_SOCKET_DIR:-"/var/run/postgresql"}
@@ -48,14 +17,21 @@ ENV PG_UNIX_SOCKET_DIR=${PG_UNIX_SOCKET_DIR:-"/var/run/postgresql"}
 ARG PG_SERVER_PORT
 ENV PG_SERVER_PORT=${PG_SERVER_PORT:-5432}
 
+ARG WALG_VERSION
+ENV WALG_VERSION=${WALG_VERSION:-3.0.3}
+
 ARG PG_TIMETABLE_VERSION
 ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.9.0}
+
 ARG SET_USER_VERSION
-ENV SET_USER_VERSION=${SET_USER_VERSION:-REL4_0_1}
+ENV SET_USER_VERSION=${SET_USER_VERSION:-REL4_1_0}
+
 ARG LOGERRORS_VERSION
-ENV LOGERRORS_VERSION=${LOGERRORS_VERSION:-2.1.2}
+ENV LOGERRORS_VERSION=${LOGERRORS_VERSION:-2.1.3}
+
 ARG PGVECTOR_VERSION
-ENV PGVECTOR_VERSION=${PGVECTOR_VERSION:-0.7.2}
+ENV PGVECTOR_VERSION=${PGVECTOR_VERSION:-0.7.4}
+
 # https://gitlab.com/postgres-ai/custom-images/-/merge_requests/56
 ARG PG_CRON_VERSION
 ENV PG_CRON_VERSION=${PG_CRON_VERSION:-1.4.2}
@@ -170,9 +146,12 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # pgextwlist extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pgextwlist \
     # set_user extension
-    && if [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+    && if [ $(echo "$PG_SERVER_VERSION >= 12" | /usr/bin/bc) = "1" ]; then \
          cd /tmp && git clone https://github.com/pgaudit/set_user.git \
          && cd set_user && git checkout ${SET_USER_VERSION} && make USE_PGXS=1 && make USE_PGXS=1 install; \
+       elif [ $(echo "$PG_SERVER_VERSION < 12" | /usr/bin/bc) = "1" ]; then \
+         cd /tmp && git clone https://github.com/pgaudit/set_user.git \
+         && cd set_user && git checkout REL4_0_1 && make USE_PGXS=1 && make USE_PGXS=1 install; \
        fi \
     # logerrors extension
     && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
@@ -199,6 +178,11 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        pgbackrest zstd openssh-client \
        && mkdir -p -m 700 /var/lib/postgresql/.ssh \
        && chown postgres:postgres /var/lib/postgresql/.ssh \
+    # WAL-G
+    && wget https://github.com/wal-g/wal-g/releases/download/v"${WALG_VERSION}"/wal-g-pg-ubuntu-20.04-amd64.tar.gz \
+      && tar -zxvf wal-g-pg-ubuntu-20.04-amd64.tar.gz \
+      && mv wal-g-pg-ubuntu-20.04-amd64 /usr/local/bin/wal-g \
+      && wal-g --version \
     # remove all auxilary packages to reduce final image size
     && cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove \
        gcc make wget unzip curl libc6-dev apt-transport-https git \
