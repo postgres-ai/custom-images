@@ -37,12 +37,9 @@ Available PostgreSQL versions: 9.6 (EOL), 10 (EOL), 11 (EOL), 12, 13, 14, 15, 16
 
 #### Not included in the PostgreSQL 17 image (yet)
 The PostgreSQL 17 image is now missing the following extensions (they will be added in the future):
-- pg_repack
 - powa
-- timescaledb
 - citus
 - topn
-- pg_qualstats
 
 ### How to extend
 - You can fork this repository and extend `Dockerfile`, then build your own images
