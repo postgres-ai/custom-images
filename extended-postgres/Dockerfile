@@ -49,9 +49,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          apt-get install --no-install-recommends -y postgresql-9.6-amcheck; \
        fi \
     # pg_repack extension
-    && if [ $(echo "$PG_SERVER_VERSION < 17" | /usr/bin/bc) = "1" ]; then \
-         apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-repack; \
-       fi \
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-repack \
     # hypopg extension
     && apt-get install --no-install-recommends -y \
        postgresql-${PG_SERVER_VERSION}-hypopg \
@@ -81,7 +79,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install; \
        fi \
     # timescaledb extension
-    && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 17" | /usr/bin/bc) = "1" ]; then \
+    && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ]; then \
          echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/timescaledb.list \
            && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
            && apt-get update \
@@ -137,9 +135,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # pg_wait_sampling extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-wait-sampling \
     # pg_qualstats extension
-    && if [ $(echo "$PG_SERVER_VERSION < 17" | /usr/bin/bc) = "1" ]; then \
-         apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-qualstats; \
-       fi \
+    && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-qualstats \
     # bg_mon extension
     && apt-get install -y libevent-dev libbrotli-dev \
       && cd /tmp && git clone https://github.com/CyberDem0n/bg_mon.git && cd bg_mon \
