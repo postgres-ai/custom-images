@@ -1,0 +1,200 @@
+stages:
+  - test-image
+
+.job_template: &test_image_definition
+  image: docker:19
+  stage: test-image
+  services:
+    - alias: docker
+      name: docker:19.03.5-dind
+  script:
+    - apk add --no-cache bash
+    - chmod +x extended-postgres/test/images_test.sh
+    - TAG=${TAG} PG_IMAGE_NAME="${DOCKER_NAME}" PG_SERVER_VERSION=${PG_SERVER_VERSION} CREATE_EXTENSION_EXCLUDE=${CREATE_EXTENSION_EXCLUDE} bash extended-postgres/test/images_test.sh
+
+.only_tag_template: &only_release
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^[0-9.]+$/ || $COMMIT_TAG =~ /^[0-9.]+$/
+      when: always
+
+.release_vars:
+  variables: &release_vars
+    TAG: $CI_COMMIT_TAG
+    DOCKER_NAME: "postgresai/extended-postgres"
+
+.only_branch_template: &only_branch
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^[0-9.]+$/ || $COMMIT_TAG =~ /^[0-9.]+$/
+      when: never
+    - if: $CI_COMMIT_BRANCH && $CI_COMMIT_REF_SLUG != "master"
+      when: manual
+
+.branch_vars:
+  variables: &branch_vars
+    TAG: $CI_COMMIT_REF_SLUG
+    DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres"
+
+test-extended-postgres-9-6-image-latest:
+  <<: *test_image_definition
+  <<: *only_release
+  dependencies:
+    - build-extended-postgres-9-6-image-latest
+  variables:
+    <<: *release_vars
+    PG_SERVER_VERSION: "9.6"
+    CREATE_EXTENSION_EXCLUDE: "pg_cron"
+
+test-extended-postgres-10-image-latest:
+  <<: *test_image_definition
+  <<: *only_release
+  dependencies:
+    - build-extended-postgres-10-image-latest
+  variables:
+    <<: *release_vars
+    PG_SERVER_VERSION: "10"
+
+test-extended-postgres-11-image-latest:
+  <<: *test_image_definition
+  <<: *only_release
+  dependencies:
+    - build-extended-postgres-11-image-latest
+  variables:
+    <<: *release_vars
+    PG_SERVER_VERSION: "11"
+
+test-extended-postgres-12-image-latest:
+  <<: *test_image_definition
+  <<: *only_release
+  dependencies:
+    - build-extended-postgres-12-image-latest
+  variables:
+    <<: *release_vars
+    PG_SERVER_VERSION: "12"
+
+test-extended-postgres-13-image-latest:
+  <<: *test_image_definition
+  <<: *only_release
+  dependencies:
+    - build-extended-postgres-13-image-latest
+  variables:
+    <<: *release_vars
+    PG_SERVER_VERSION: "13"
+
+test-extended-postgres-14-image-latest:
+  <<: *test_image_definition
+  <<: *only_release
+  dependencies:
+    - build-extended-postgres-14-image-latest
+  variables:
+    <<: *release_vars
+    PG_SERVER_VERSION: "14"
+
+test-extended-postgres-15-image-latest:
+  <<: *test_image_definition
+  <<: *only_release
+  dependencies:
+    - build-extended-postgres-15-image-latest
+  variables:
+    <<: *release_vars
+    PG_SERVER_VERSION: "15"
+
+test-extended-postgres-16-image-latest:
+  <<: *test_image_definition
+  <<: *only_release
+  dependencies:
+    - build-extended-postgres-16-image-latest
+  variables:
+    <<: *release_vars
+    PG_SERVER_VERSION: "16"
+
+test-extended-postgres-17-image-latest:
+  <<: *test_image_definition
+  <<: *only_release
+  dependencies:
+    - build-extended-postgres-17-image-latest
+  variables:
+    <<: *release_vars
+    PG_SERVER_VERSION: "17"
+
+
+test-extended-postgres-9-6-image-feature:
+  <<: *test_image_definition
+  <<: *only_branch
+  dependencies:
+    - build-extended-postgres-9-6-image-feature
+  variables:
+    <<: *branch_vars
+    PG_SERVER_VERSION: "9.6"
+    CREATE_EXTENSION_EXCLUDE: "pg_cron" 
+
+test-extended-postgres-10-image-feature:
+  <<: *test_image_definition
+  <<: *only_branch
+  dependencies:
+    - build-extended-postgres-10-image-feature
+  variables:
+    <<: *branch_vars
+    PG_SERVER_VERSION: "10"
+
+test-extended-postgres-11-image-feature:
+  <<: *test_image_definition
+  <<: *only_branch
+  dependencies:
+    - build-extended-postgres-11-image-feature
+  variables:
+    <<: *branch_vars
+    PG_SERVER_VERSION: "11"
+
+test-extended-postgres-12-image-feature:
+  <<: *test_image_definition
+  <<: *only_branch
+  dependencies:
+    - build-extended-postgres-12-image-feature
+  variables:
+    <<: *branch_vars
+    PG_SERVER_VERSION: "12"
+
+test-extended-postgres-13-image-feature:
+  <<: *test_image_definition
+  <<: *only_branch
+  dependencies:
+    - build-extended-postgres-13-image-feature
+  variables:
+    <<: *branch_vars
+    PG_SERVER_VERSION: "13"
+
+test-extended-postgres-14-image-feature:
+  <<: *test_image_definition
+  <<: *only_branch
+  dependencies:
+    - build-extended-postgres-14-image-feature
+  variables:
+    <<: *branch_vars
+    PG_SERVER_VERSION: "14"
+
+test-extended-postgres-15-image-feature:
+  <<: *test_image_definition
+  <<: *only_branch
+  dependencies:
+    - build-extended-postgres-15-image-feature
+  variables:
+    <<: *branch_vars
+    PG_SERVER_VERSION: "15"
+
+test-extended-postgres-16-image-feature:
+  <<: *test_image_definition
+  <<: *only_branch
+  dependencies:
+    - build-extended-postgres-16-image-feature
+  variables:
+    <<: *branch_vars
+    PG_SERVER_VERSION: "16"
+
+test-extended-postgres-17-image-feature:
+  <<: *test_image_definition
+  <<: *only_branch
+  dependencies:
+    - build-extended-postgres-17-image-feature
+  variables:
+    <<: *branch_vars
+    PG_SERVER_VERSION: "17"

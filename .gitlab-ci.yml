@@ -1,6 +1,8 @@
 stages:
   - build-image
+  - test-image
 
 include:
   - local: '/extended-postgres/build-images-ci.yml'
+  - local: '/extended-postgres/test-images-ci.yml'
   - local: '/migration-tools/build-images-migration-tools.yml'

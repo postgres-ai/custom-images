@@ -114,12 +114,17 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-show-plans; \
        fi \
     # pg_cron extension
-    && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
-        cd /tmp && git clone --branch v${PG_CRON_VERSION} --single-branch https://github.com/citusdata/pg_cron.git \
-          && cd pg_cron \
-          && make && make install; \
-        else \
-          apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-cron; \
+    # for PostgreSQL 10-15, install from source (https://gitlab.com/postgres-ai/custom-images/-/merge_requests/56)
+    && if [ $(echo "$PG_SERVER_VERSION >= 10" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
+         cd /tmp && git clone --branch v${PG_CRON_VERSION} --single-branch https://github.com/citusdata/pg_cron.git \
+         && cd pg_cron \
+         && make && make install; \
+       elif [ $(echo "$PG_SERVER_VERSION == 9.6" | /usr/bin/bc) = "1" ]; then \
+         cd /tmp && git clone --branch v1.3.1 --single-branch https://github.com/citusdata/pg_cron.git \
+         && cd pg_cron \
+         && make && make install; \
+       elif [ $(echo "$PG_SERVER_VERSION >= 16" | /usr/bin/bc) = "1" ]; then \
+         apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-cron; \
        fi \
     # postgresql_anonymizer extension
     && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
@@ -187,7 +192,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        gcc make wget unzip curl libc6-dev apt-transport-https git \
        postgresql-server-dev-${PG_SERVER_VERSION} pgxnclient build-essential \
        libssl-dev krb5-multidev comerr-dev krb5-multidev libkrb5-dev apt-utils lsb-release \
-       libgssrpc4 libevent-dev libbrotli-dev \
+       libgssrpc4 \
     && apt-get clean -y autoclean \
     && rm -rf /var/lib/apt/lists/* \
     # remove standard pgdata
