@@ -10,7 +10,7 @@ Storage-optimized: the size of each image is ~300-500 MiB.
 Use these images with Database Lab, when you need HypoPG or anything else.
 
 ### What's inside
-Available PostgreSQL versions: 9.6 (EOL), 10 (EOL), 11 (EOL), 12, 13, 14, 15, 16, 17. Extensions:
+Available PostgreSQL versions: 9.6 (EOL), 10 (EOL), 11 (EOL), 12(EOL), 13, 14, 15, 16, 17. Extensions:
 - all official ["core" contrib modules](https://www.postgresql.org/docs/current/contrib.html)
 - [bg_mon](https://github.com/CyberDem0n/bg_mon)
 - [Citus](https://github.com/citusdata/citus)
@@ -34,12 +34,6 @@ Available PostgreSQL versions: 9.6 (EOL), 10 (EOL), 11 (EOL), 12, 13, 14, 15, 16
 - [set_user](https://github.com/pgaudit/set_user)
 - [timescaledb](https://github.com/timescale/timescaledb)
 - [pgvector](https://github.com/pgvector/pgvector)
-
-#### Not included in the PostgreSQL 17 image (yet)
-The PostgreSQL 17 image is now missing the following extensions (they will be added in the future):
-- powa
-- citus
-- topn
 
 ### How to extend
 - You can fork this repository and extend `Dockerfile`, then build your own images
