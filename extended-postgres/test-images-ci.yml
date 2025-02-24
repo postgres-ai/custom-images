@@ -2,11 +2,11 @@ stages:
   - test-image
 
 .job_template: &test_image_definition
-  image: docker:19
+  image: docker:24.0.6
   stage: test-image
   services:
     - alias: docker
-      name: docker:19.03.5-dind
+      name: docker:24.0.6-dind
   script:
     - apk add --no-cache bash
     - chmod +x extended-postgres/test/images_test.sh
