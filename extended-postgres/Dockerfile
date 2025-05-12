@@ -1,11 +1,11 @@
-# Debian 11 (bullseye) has glibc 2.31.
+# Debian 12 (bookworm) has glibc 2.36.
 # If you are using "physical" mode, please check the glibc version in your production database system to avoid potential index corruption.
 # You should have the same version of glibc as in your Docker image.
 
 ARG PG_SERVER_VERSION=16
 
 # Build the extended image
-FROM postgres:${PG_SERVER_VERSION}-bullseye
+FROM postgres:${PG_SERVER_VERSION}-bookworm
 LABEL maintainer="postgres.ai"
 
 ARG PG_SERVER_VERSION
