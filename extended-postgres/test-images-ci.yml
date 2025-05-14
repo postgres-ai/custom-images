@@ -34,25 +34,6 @@ stages:
     TAG: $CI_COMMIT_REF_SLUG
     DOCKER_NAME: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/extended-postgres"
 
-test-extended-postgres-9-6-image-latest:
-  <<: *test_image_definition
-  <<: *only_release
-  dependencies:
-    - build-extended-postgres-9-6-image-latest
-  variables:
-    <<: *release_vars
-    PG_SERVER_VERSION: "9.6"
-    CREATE_EXTENSION_EXCLUDE: "pg_cron"
-
-test-extended-postgres-10-image-latest:
-  <<: *test_image_definition
-  <<: *only_release
-  dependencies:
-    - build-extended-postgres-10-image-latest
-  variables:
-    <<: *release_vars
-    PG_SERVER_VERSION: "10"
-
 test-extended-postgres-11-image-latest:
   <<: *test_image_definition
   <<: *only_release
@@ -116,25 +97,6 @@ test-extended-postgres-17-image-latest:
     <<: *release_vars
     PG_SERVER_VERSION: "17"
 
-
-test-extended-postgres-9-6-image-feature:
-  <<: *test_image_definition
-  <<: *only_branch
-  dependencies:
-    - build-extended-postgres-9-6-image-feature
-  variables:
-    <<: *branch_vars
-    PG_SERVER_VERSION: "9.6"
-    CREATE_EXTENSION_EXCLUDE: "pg_cron" 
-
-test-extended-postgres-10-image-feature:
-  <<: *test_image_definition
-  <<: *only_branch
-  dependencies:
-    - build-extended-postgres-10-image-feature
-  variables:
-    <<: *branch_vars
-    PG_SERVER_VERSION: "10"
 
 test-extended-postgres-11-image-feature:
   <<: *test_image_definition
