@@ -2,14 +2,14 @@
 # If you are using "physical" mode, please check the glibc version in your production database system to avoid potential index corruption.
 # You should have the same version of glibc as in your Docker image.
 
-ARG PG_SERVER_VERSION=16
+ARG PG_SERVER_VERSION=17
 
 # Build the extended image
 FROM postgres:${PG_SERVER_VERSION}-bookworm
 LABEL maintainer="postgres.ai"
 
 ARG PG_SERVER_VERSION
-ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-16}
+ENV PG_SERVER_VERSION=${PG_SERVER_VERSION:-17}
 
 ARG PG_UNIX_SOCKET_DIR
 ENV PG_UNIX_SOCKET_DIR=${PG_UNIX_SOCKET_DIR:-"/var/run/postgresql"}
@@ -18,10 +18,10 @@ ARG PG_SERVER_PORT
 ENV PG_SERVER_PORT=${PG_SERVER_PORT:-5432}
 
 ARG WALG_VERSION
-ENV WALG_VERSION=${WALG_VERSION:-3.0.5}
+ENV WALG_VERSION=${WALG_VERSION:-3.0.7}
 
 ARG PG_TIMETABLE_VERSION
-ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.11.0}
+ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.13.0}
 
 ARG LOGERRORS_VERSION
 ENV LOGERRORS_VERSION=${LOGERRORS_VERSION:-2.1.3}
@@ -44,10 +44,6 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && apt-get install --no-install-recommends -y postgresql-server-dev-${PG_SERVER_VERSION} \
     # plpython3 (procedural language implementation for Python 3.x)
     && apt-get install --no-install-recommends -y postgresql-plpython3-${PG_SERVER_VERSION} \
-    # amcheck extension; not included in contrib for Postgres 9.6
-    && if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
-         apt-get install --no-install-recommends -y postgresql-9.6-amcheck; \
-       fi \
     # pg_repack extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-repack \
     # hypopg extension
@@ -69,10 +65,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # powa extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-powa \
     # pg_auth_mon extension
-    && if [ "${PG_SERVER_VERSION}" = "9.6" ]; then \
-         cd /tmp && git clone --branch v1.0 --single-branch https://github.com/RafiaSabih/pg_auth_mon.git \
-         && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install; \
-       elif [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ]; then \
+    && if [ $(echo "$PG_SERVER_VERSION > 10" | /usr/bin/bc) = "1" ]; then \
          cd /tmp && git clone --branch v3.0 --single-branch https://github.com/RafiaSabih/pg_auth_mon.git \
          && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install; \
        fi \
@@ -100,10 +93,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     # hll extension
     && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-hll \
     # topn extension
-    && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
-         curl -s https://install.citusdata.com/community/deb.sh | bash \
-         && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-topn; \
-       fi \
+    && curl -s https://install.citusdata.com/community/deb.sh | bash \
+         && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-topn \
     # pg_timetable extension
     && wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v"${PG_TIMETABLE_VERSION}"/pg_timetable_Linux_x86_64.deb \
       && dpkg -i pg_timetable_Linux_x86_64.deb \
@@ -118,17 +109,11 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          cd /tmp && git clone --branch v${PG_CRON_VERSION} --single-branch https://github.com/citusdata/pg_cron.git \
          && cd pg_cron \
          && make && make install; \
-       elif [ $(echo "$PG_SERVER_VERSION == 9.6" | /usr/bin/bc) = "1" ]; then \
-         cd /tmp && git clone --branch v1.3.1 --single-branch https://github.com/citusdata/pg_cron.git \
-         && cd pg_cron \
-         && make && make install; \
        elif [ $(echo "$PG_SERVER_VERSION >= 16" | /usr/bin/bc) = "1" ]; then \
          apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-cron; \
        fi \
     # postgresql_anonymizer extension
-    && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
-         pgxn install ddlx && pgxn install postgresql_anonymizer; \
-       fi \
+    && pgxn install ddlx && pgxn install postgresql_anonymizer \
     # pg_stat_kcache extension
     && apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-pg-stat-kcache \
     # pg_wait_sampling extension
@@ -147,16 +132,11 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        elif [ $(echo "$PG_SERVER_VERSION == 17" | /usr/bin/bc) = "1" ]; then \
          cd /tmp && git clone --branch REL4_1_0 https://github.com/pgaudit/set_user.git \
          && cd set_user && make USE_PGXS=1 && make USE_PGXS=1 install; \
-       elif [ $(echo "$PG_SERVER_VERSION == 9.6" | /usr/bin/bc) = "1" ]; then \
-         cd /tmp && git clone --branch REL4_0_1 https://github.com/pgaudit/set_user.git \
-         && cd set_user && make USE_PGXS=1 && make USE_PGXS=1 install; \
        fi \
     # logerrors extension
-    && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ]; then \
-         cd /tmp && wget -O logerrors.tar.gz https://github.com/munakoiso/logerrors/archive/v${LOGERRORS_VERSION}.tar.gz \
+    && cd /tmp && wget -O logerrors.tar.gz https://github.com/munakoiso/logerrors/archive/v${LOGERRORS_VERSION}.tar.gz \
          && tar -xf logerrors.tar.gz && rm logerrors.tar.gz && cd logerrors-${LOGERRORS_VERSION} \
-         && USE_PGXS=1 make && USE_PGXS=1 make install; \
-       fi \
+         && USE_PGXS=1 make && USE_PGXS=1 make install \
     # pgvector extension
     && if [ $(echo "$PG_SERVER_VERSION >= 11" | /usr/bin/bc) = "1" ]; then \
         if [ "${PG_SERVER_VERSION}" = "11" ]; then PGVECTOR_VERSION="0.5.1"; \
@@ -179,7 +159,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
       && tar -zxvf wal-g-pg-ubuntu-20.04-amd64.tar.gz \
       && mv wal-g-pg-ubuntu-20.04-amd64 /usr/local/bin/wal-g \
       && wal-g --version \
-    # remove all auxilary packages to reduce final image size
+    # remove all auxiliary packages to reduce final image size
     && cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove \
        gcc make wget unzip curl libc6-dev apt-transport-https git \
        postgresql-server-dev-${PG_SERVER_VERSION} pgxnclient build-essential \
