@@ -43,8 +43,14 @@ fi
 
 TAG=${TAG:-${CI_COMMIT_REF_SLUG:-"master"}}
 PG_IMAGE_NAME="${PG_IMAGE_NAME:-'postgresai/extended-postgres'}"
+OS_SUFFIX="${OS_SUFFIX:-"bullseye"}"
 PG_SERVER_VERSION=${PG_SERVER_VERSION//,/ }
 PG_CONTAINER_NAME="postgres-${PG_SERVER_VERSION}"
+
+CLEANED_PG_SERVER_VERSION=$(echo "$PG_SERVER_VERSION" | sed 's/rc.*//')
+if [ "$(echo "$CLEANED_PG_SERVER_VERSION == 18" | /usr/bin/bc)" = "1" ]; then
+  OS_SUFFIX="bookworm"
+fi \
 
 # initdb using the base image
 TEST_DIR="/tmp/test_image/${PG_CONTAINER_NAME}"
@@ -57,7 +63,7 @@ docker run -d --rm --name "${PG_CONTAINER_NAME}" \
   -e PGDATA=/var/lib/postgresql/pgdata \
   -e POSTGRES_HOST_AUTH_METHOD=trust \
   -v "${TEST_PGDATA}":/var/lib/postgresql/pgdata \
-postgres:"${PG_SERVER_VERSION}"-bullseye >/dev/null 2>&1
+postgres:"${PG_SERVER_VERSION}"-"${OS_SUFFIX}" >/dev/null 2>&1
 
 postgres_readiness(){
   docker exec "${PG_CONTAINER_NAME}" \
@@ -90,9 +96,10 @@ docker exec "${PG_CONTAINER_NAME}" \
 docker stop "${PG_CONTAINER_NAME}" >/dev/null 2>&1
 
 # configure postgresql.conf
-CLEANED_PG_SERVER_VERSION=$(echo "$PG_SERVER_VERSION" | sed 's/rc.*//')
 BASE_LIBRARIES="pg_stat_statements,pg_stat_kcache,pg_cron,pgaudit,bg_mon"
-if [ "$(echo "$CLEANED_PG_SERVER_VERSION >= 12" | /usr/bin/bc)" = "1" ]; then
+if [ "$(echo "$CLEANED_PG_SERVER_VERSION == 18" | /usr/bin/bc)" = "1" ]; then
+  SHARED_PRELOAD_LIBRARIES="anon,pg_stat_statements,pg_stat_kcache,pgaudit,bg_mon"
+elif [ "$(echo "$CLEANED_PG_SERVER_VERSION >= 12" | /usr/bin/bc)" = "1" ]; then
   SHARED_PRELOAD_LIBRARIES="citus,timescaledb,anon,${BASE_LIBRARIES}"
 elif [ "$(echo "$CLEANED_PG_SERVER_VERSION == 11" | /usr/bin/bc)" = "1" ]; then
   SHARED_PRELOAD_LIBRARIES="citus,anon,${BASE_LIBRARIES}"

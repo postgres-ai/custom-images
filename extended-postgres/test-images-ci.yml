@@ -97,6 +97,15 @@ test-extended-postgres-17-image-latest:
     <<: *release_vars
     PG_SERVER_VERSION: "17"
 
+test-extended-postgres-18-image-latest:
+  <<: *test_image_definition
+  <<: *only_release
+  dependencies:
+    - build-extended-postgres-18-image-latest
+  variables:
+    <<: *release_vars
+    PG_SERVER_VERSION: "18"
+
 
 test-extended-postgres-11-image-feature:
   <<: *test_image_definition
@@ -160,3 +169,12 @@ test-extended-postgres-17-image-feature:
   variables:
     <<: *branch_vars
     PG_SERVER_VERSION: "17"
+
+test-extended-postgres-18-image-feature:
+  <<: *test_image_definition
+  <<: *only_branch
+  dependencies:
+    - build-extended-postgres-18-image-feature
+  variables:
+    <<: *branch_vars
+    PG_SERVER_VERSION: "18"
