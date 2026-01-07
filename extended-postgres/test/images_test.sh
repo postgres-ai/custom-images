@@ -98,7 +98,7 @@ docker stop "${PG_CONTAINER_NAME}" >/dev/null 2>&1
 # configure postgresql.conf
 BASE_LIBRARIES="pg_stat_statements,pg_stat_kcache,pg_cron,pgaudit,bg_mon"
 if [ "$(echo "$CLEANED_PG_SERVER_VERSION == 18" | /usr/bin/bc)" = "1" ]; then
-  SHARED_PRELOAD_LIBRARIES="anon,pg_stat_statements,pg_stat_kcache,pgaudit,bg_mon"
+  SHARED_PRELOAD_LIBRARIES="timescaledb,anon,pg_stat_statements,pg_stat_kcache,pg_cron,pgaudit,bg_mon"
 elif [ "$(echo "$CLEANED_PG_SERVER_VERSION >= 12" | /usr/bin/bc)" = "1" ]; then
   SHARED_PRELOAD_LIBRARIES="citus,timescaledb,anon,${BASE_LIBRARIES}"
 elif [ "$(echo "$CLEANED_PG_SERVER_VERSION == 11" | /usr/bin/bc)" = "1" ]; then
