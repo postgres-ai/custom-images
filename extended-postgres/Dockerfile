@@ -71,8 +71,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          cd /tmp && git clone --branch v3.0 --single-branch https://github.com/RafiaSabih/pg_auth_mon.git \
          && cd pg_auth_mon && USE_PGXS=1 make && USE_PGXS=1 make install; \
        fi \
-    # timescaledb extension
-    && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 18" | /usr/bin/bc) = "1" ]; then \
+    # timescaledb extension (supports PostgreSQL 18 since v2.23.0)
+    && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ]; then \
          echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/timescaledb.list \
            && wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add - \
            && apt-get update \
@@ -92,10 +92,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
          && curl -s https://install.citusdata.com/community/deb.sh | bash \
          && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-citus-"${CITUS_VERSION}"; \
        fi \
-    # hll extension \
-    && if [ $(echo "$PG_SERVER_VERSION < 18" | /usr/bin/bc) = "1" ]; then \
-       apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-hll; \
-    fi \
+    # hll extension (supports PostgreSQL 18 since v2.19)
+    && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-hll \
     # topn extension \
     && if [ $(echo "$PG_SERVER_VERSION > 9.6" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 18" | /usr/bin/bc) = "1" ]; then \
        curl -s https://install.citusdata.com/community/deb.sh | bash \
@@ -109,13 +107,13 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
     && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ]; then \
          apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-show-plans; \
        fi \
-    # pg_cron extension
+    # pg_cron extension (supports PostgreSQL 18 since v1.6.6)
     # for PostgreSQL 10-15, install from source (https://gitlab.com/postgres-ai/custom-images/-/merge_requests/56)
     && if [ $(echo "$PG_SERVER_VERSION >= 10" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 16" | /usr/bin/bc) = "1" ]; then \
          cd /tmp && git clone --branch v${PG_CRON_VERSION} --single-branch https://github.com/citusdata/pg_cron.git \
          && cd pg_cron \
          && make && make install; \
-       elif [ $(echo "$PG_SERVER_VERSION >= 16" | /usr/bin/bc) = "1" ] && [ $(echo "$PG_SERVER_VERSION < 18" | /usr/bin/bc) = "1" ]; then \
+       elif [ $(echo "$PG_SERVER_VERSION >= 16" | /usr/bin/bc) = "1" ]; then \
          apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-cron; \
        fi \
     # postgresql_anonymizer extension
