@@ -1,8 +1,17 @@
 stages:
   - build-image
   - test-image
+  - test
 
 include:
+  - template: Security/SAST.gitlab-ci.yml
   - local: '/extended-postgres/build-images-ci.yml'
   - local: '/extended-postgres/test-images-ci.yml'
   - local: '/migration-tools/build-images-migration-tools.yml'
+
+# Override semgrep-sast rules to bypass language auto-detection (DCF-712)
+semgrep-sast:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
