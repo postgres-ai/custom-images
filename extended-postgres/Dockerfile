@@ -2,10 +2,59 @@
 # If you are using "physical" mode, please check the glibc version in your production database system to avoid potential index corruption.
 # You should have the same version of glibc as in your Docker image.
 
+ARG GO_VERSION=1.26.2
+ARG GOSU_VERSION=1.19
 ARG PG_SERVER_VERSION=18
+ARG PG_TIMETABLE_VERSION=6.3.0
+ARG PG_TIMETABLE_PGX_VERSION=v5.9.2
+ARG WALG_VERSION=3.0.8
+ARG WALG_GIT_REVISION=f81943e
+ARG WALG_GRPC_VERSION=v1.80.0
+ARG WALG_PGX_VERSION=v5.9.2
+ARG WALG_X_CRYPTO_VERSION=v0.49.0
+ARG WALG_OAUTH2_VERSION=v0.36.0
+
+FROM golang:${GO_VERSION} AS gosu-builder
+ARG GOSU_VERSION
+RUN GOBIN=/out go install github.com/tianon/gosu@${GOSU_VERSION}
+
+FROM golang:${GO_VERSION} AS pg-timetable-builder
+ARG PG_TIMETABLE_VERSION
+ARG PG_TIMETABLE_PGX_VERSION
+RUN git clone --depth 1 --branch v${PG_TIMETABLE_VERSION} https://github.com/cybertec-postgresql/pg_timetable.git /src \
+    && cd /src \
+    && go get github.com/jackc/pgx/v5@${PG_TIMETABLE_PGX_VERSION} \
+    && go mod tidy \
+    && CGO_ENABLED=0 go build -trimpath \
+      -ldflags "-s -w -X main.version=v${PG_TIMETABLE_VERSION} -X main.commit=security-rebuild -X main.date=2026-05-05" \
+      -o /out/pg_timetable .
+
+FROM golang:${GO_VERSION} AS walg-builder
+ARG WALG_VERSION
+ARG WALG_GIT_REVISION
+ARG WALG_GRPC_VERSION
+ARG WALG_PGX_VERSION
+ARG WALG_X_CRYPTO_VERSION
+ARG WALG_OAUTH2_VERSION
+RUN git clone --depth 1 --branch v${WALG_VERSION} https://github.com/wal-g/wal-g.git /src \
+    && cd /src \
+    && go mod edit -module github.com/wal-g/wal-g/v3 \
+    && go mod edit -require github.com/wal-g/wal-g@v1.1.0 \
+    && go mod edit -replace github.com/wal-g/wal-g=. \
+    && go get github.com/jackc/pgx/v5@${WALG_PGX_VERSION} \
+      google.golang.org/grpc@${WALG_GRPC_VERSION} \
+      golang.org/x/crypto@${WALG_X_CRYPTO_VERSION} \
+      golang.org/x/oauth2@${WALG_OAUTH2_VERSION} \
+    && go mod tidy \
+    && CGO_ENABLED=0 GOEXPERIMENT=jsonv2 go build -trimpath \
+      -ldflags "-s -w -X github.com/wal-g/wal-g/cmd/pg.walgVersion=v${WALG_VERSION} -X github.com/wal-g/wal-g/cmd/pg.gitRevision=${WALG_GIT_REVISION} -X github.com/wal-g/wal-g/cmd/pg.buildDate=2026.05.05_00:00:00" \
+      -o /out/wal-g ./main/pg
 
 # Build the extended image
 FROM postgres:${PG_SERVER_VERSION}-bookworm
+COPY --from=gosu-builder /out/gosu /usr/local/bin/gosu
+COPY --from=pg-timetable-builder /out/pg_timetable /usr/local/bin/pg_timetable
+COPY --from=walg-builder /out/wal-g /usr/local/bin/wal-g
 LABEL maintainer="postgres.ai"
 
 ARG PG_SERVER_VERSION
@@ -18,10 +67,10 @@ ARG PG_SERVER_PORT
 ENV PG_SERVER_PORT=${PG_SERVER_PORT:-5432}
 
 ARG WALG_VERSION
-ENV WALG_VERSION=${WALG_VERSION:-3.0.7}
+ENV WALG_VERSION=${WALG_VERSION:-3.0.8}
 
 ARG PG_TIMETABLE_VERSION
-ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-5.13.0}
+ENV PG_TIMETABLE_VERSION=${PG_TIMETABLE_VERSION:-6.3.0}
 
 ARG LOGERRORS_VERSION
 ENV LOGERRORS_VERSION=${LOGERRORS_VERSION:-2.1.5}
@@ -105,10 +154,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        curl -s https://install.citusdata.com/community/deb.sh | bash \
          && apt-get install --no-install-recommends -y postgresql-"${PG_SERVER_VERSION}"-topn; \
        fi \
-    # pg_timetable extension
-    && wget https://github.com/cybertec-postgresql/pg_timetable/releases/download/v"${PG_TIMETABLE_VERSION}"/pg_timetable_Linux_x86_64.deb \
-      && dpkg -i pg_timetable_Linux_x86_64.deb \
-      && rm -rf pg_timetable_Linux_x86_64.deb \
+    # pg_timetable binary is rebuilt in the builder stage with patched Go/pgx.
+    && pg_timetable --version \
     # pg_show_plans extension
     && if [ $(echo "$PG_SERVER_VERSION > 11" | /usr/bin/bc) = "1" ]; then \
          apt-get install --no-install-recommends -y postgresql-${PG_SERVER_VERSION}-show-plans; \
@@ -173,11 +220,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/partial \
        pgbackrest zstd openssh-client \
        && mkdir -p -m 700 /var/lib/postgresql/.ssh \
        && chown postgres:postgres /var/lib/postgresql/.ssh \
-    # WAL-G
-    && wget https://github.com/wal-g/wal-g/releases/download/v"${WALG_VERSION}"/wal-g-pg-ubuntu-20.04-amd64.tar.gz \
-      && tar -zxvf wal-g-pg-ubuntu-20.04-amd64.tar.gz \
-      && mv wal-g-pg-ubuntu-20.04-amd64 /usr/local/bin/wal-g \
-      && wal-g --version \
+    # WAL-G binary is rebuilt in the builder stage with patched Go/deps.
+    && wal-g --version \
     # remove all auxiliary packages to reduce final image size
     && cd / && rm -rf /tmp/* && apt-get purge -y --auto-remove \
        gcc make wget unzip curl libc6-dev apt-transport-https git \
